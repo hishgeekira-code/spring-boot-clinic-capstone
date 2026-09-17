@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Appointment - Clinic</title>
+</head>
+<body>
+    <h2>Confirm Appointment Booking</h2>
+    <a th:href="@{/doctors}">← Back to Doctors</a>
+    <hr/>
+
+    <div>
+        <p><strong>Doctor:</strong> <span th:text="${'Dr. ' + schedule.doctor.firstName + ' ' + schedule.doctor.lastName}">Dr. Name</span></p>
+        <p><strong>Specialization:</strong> <span th:text="${schedule.doctor.specialization}">Specialization</span></p>
+        <p><strong>Date:</strong> <span th:text="${schedule.availableDate}">2026-09-20</span></p>
+        <p><strong>Time:</strong> <span th:text="${schedule.startTime + ' - ' + schedule.endTime}">09:00 - 10:00</span></p>
+    </div>
+
+    <hr/>
+
+    <form th:action="@{/appointments/book}" method="post">
+        <input type="hidden" name="scheduleId" th:value="${schedule.id}" />
+        
+        <div>
+            <label>Reason for Visit (Optional):</label><br/>
+            <textarea name="reason" rows="4" cols="40" placeholder="Describe your symptoms..."></textarea>
+        </div>
+
+        <br/>
+        <button type="submit">Confirm & Book Appointment</button>
+    </form>
+</body>
+</html>

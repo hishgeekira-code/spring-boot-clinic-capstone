@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Appointments - Clinic</title>
+</head>
+<body>
+    <h2>My Appointments</h2>
+    <a th:href="@{/doctors}">Find Doctors & Schedules</a> | 
+    <a th:href="@{/logout}">Logout</a>
+    <hr/>
+
+    <div th:if="${successMessage}" style="color: green; font-weight: bold;">
+        <p th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" style="color: red; font-weight: bold;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div th:if="${#lists.isEmpty(appointments)}">
+        <p>You have no appointments booked.</p>
+    </div>
+
+    <table border="1" cellpadding="8" th:if="${!#lists.isEmpty(appointments)}">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="app : ${appointments}">
+                <td th:text="${app.id}">1</td>
+                <td th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}">Dr. Smith</td>
+                <td th:text="${app.schedule.availableDate}">2026-09-20</td>
+                <td th:text="${app.schedule.startTime + ' - ' + app.schedule.endTime}">09:00 - 10:00</td>
+                <td th:text="${app.reason != null ? app.reason : '-'}">General Checkup</td>
+                <td th:text="${app.status}">PENDING</td>
+                <td>
+                    <form th:if="${app.status.name() != 'CANCELLED' and app.status.name() != 'COMPLETED'}"
+                          th:action="@{/appointments/cancel/{id}(id=${app.id})}" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('Are you sure you want to cancel this appointment?')">Cancel</button>
+                    </form>
+                    <span th:if="${app.status.name() == 'CANCELLED'}">Cancelled</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
