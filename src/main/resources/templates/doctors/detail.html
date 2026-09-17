@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Doctor Profile</title>
+</head>
+<body>
+    <a th:href="@{/doctors}">← Back to Doctors List</a>
+    <hr/>
+
+    <h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. John Doe</h2>
+    <p><strong>Specialization:</strong> <span th:text="${doctor.specialization}">Cardiologist</span></p>
+    <p><strong>Department:</strong> <span th:text="${doctor.department != null ? doctor.department.name : 'N/A'}">Cardiology</span></p>
+    <p><strong>Bio:</strong></p>
+    <p th:text="${doctor.bio}">Doctor biography goes here...</p>
+
+    <hr/>
+    <button type="button" disabled>Book Appointment (Coming Soon)</button>
+</body>
+</html>
