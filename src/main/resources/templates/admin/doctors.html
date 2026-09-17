@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Doctors - Admin</title>
+</head>
+<body>
+    <h2>Doctor Management</h2>
+    <a th:href="@{/admin}">Back to Admin Dashboard</a> | 
+    <a th:href="@{/admin/departments}">Manage Departments</a>
+    <hr/>
+
+    <h3>Add / Edit Doctor</h3>
+    <form th:action="@{/admin/doctors/save}" th:object="${doctor}" method="post">
+        <input type="hidden" th:field="*{id}" />
+        
+        <div>
+            <label>First Name:</label>
+            <input type="text" th:field="*{firstName}" required />
+        </div>
+        <div>
+            <label>Last Name:</label>
+            <input type="text" th:field="*{lastName}" required />
+        </div>
+        <div>
+            <label>Specialization:</label>
+            <input type="text" th:field="*{specialization}" required />
+        </div>
+        <div>
+            <label>Department:</label>
+            <select th:field="*{department.id}" required>
+                <option value="">-- Select Department --</option>
+                <option th:each="dept : ${departments}" 
+                        th:value="${dept.id}" 
+                        th:text="${dept.name}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Bio:</label>
+            <textarea th:field="*{bio}"></textarea>
+        </div>
+        <div>
+            <label>Active Status:</label>
+            <input type="checkbox" th:field="*{active}" />
+        </div>
+        
+        <button type="submit">Save Doctor</button>
+    </form>
+
+    <hr/>
+
+    <h3>Doctor List</h3>
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Specialization</th>
+                <th>Department</th>
+                <th>Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="doc : ${doctors}">
+                <td th:text="${doc.id}">1</td>
+                <td th:text="${doc.firstName + ' ' + doc.lastName}">John Doe</td>
+                <td th:text="${doc.specialization}">Cardiologist</td>
+                <td th:text="${doc.department != null ? doc.department.name : 'N/A'}">Cardiology</td>
+                <td th:text="${doc.active ? 'Yes' : 'No'}">Yes</td>
+                <td>
+                    <a th:href="@{/admin/doctors/edit/{id}(id=${doc.id})}">Edit</a> | 
+                    <a th:href="@{/admin/doctors/delete/{id}(id=${doc.id})}" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
