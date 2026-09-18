@@ -57,9 +57,21 @@ public class AppointmentService {
 	}
 	
 	@Transactional
-	public void cancelAppointment(Long appointmentId) {
+	public void cancelAppointment(Long appointmentId, Long currentUserId) {
 		Appointment appointment = appointmentRepository.findById(appointmentId)
 				.orElseThrow(() -> new RuntimeException("Appointment not found with id: " + appointmentId));
+		
+		if (!appointment.getPatient().getId().equals(currentUserId)) {
+			throw new IllegalStateException("You are not authorized to cancel this appointment.");
+		}
+		
+		if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+			throw new IllegalStateException("Cannot cancel an already completed appointment.");
+		}
+		
+		if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+			throw new IllegalStateException("Appontment is already cancelled.");
+		}
 		
 		appointment.setStatus(AppointmentStatus.CANCELLED);
 		

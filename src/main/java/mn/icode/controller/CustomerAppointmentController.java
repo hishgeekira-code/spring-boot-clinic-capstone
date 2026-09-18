@@ -74,9 +74,17 @@ public class CustomerAppointmentController {
     }
 
     @PostMapping("/appointments/cancel/{id}")
-    public String cancelAppointment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        appointmentService.cancelAppointment(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully.");
-        return "redirect:/my-appointments";
+    public String cancelAppointment(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes redirectAttributes) {
+    	User user = userRepository.findByEmail(userDetails.getUsername())
+    			.orElseThrow(() -> new RuntimeException("User not found"));
+        
+    	try {
+    		appointmentService.cancelAppointment(id, user.getId());
+    		redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully.");
+    	} catch (IllegalStateException e) {
+    		redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+    	}
+    	
+    	return "redirect:/customer/appointments";
     }
 }
