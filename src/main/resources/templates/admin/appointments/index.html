@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin - Appointment Management</title>
+</head>
+<body>
+    <h2>Admin - Appointment Dashboard</h2>
+    <p>
+        <a th:href="@{/admin}">← Back to Admin Home</a> | 
+        <a th:href="@{/admin/doctors}">Manage Doctors</a> | 
+        <a th:href="@{/admin/schedules}">Manage Schedules</a> | 
+        <a th:href="@{/logout}">Logout</a>
+    </p>
+    <hr/>
+
+    <div th:if="${successMessage}" style="color: green; font-weight: bold;">
+        <p th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" style="color: red; font-weight: bold;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div th:if="${#lists.isEmpty(appointments)}">
+        <p>No appointments found in the system.</p>
+    </div>
+
+    <table border="1" cellpadding="8" th:if="${!#lists.isEmpty(appointments)}">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Patient Name</th>
+                <th>Patient Email / Phone</th>
+                <th>Doctor</th>
+                <th>Department</th>
+                <th>Appointment Date</th>
+                <th>Time Slot</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="app : ${appointments}">
+                <td th:text="${app.id}">1</td>
+                <td th:text="${app.patient.firstName + ' ' + app.patient.lastName}">John Patient</td>
+                <td th:text="${app.patient.email + ' / ' + (app.patient.phone != null ? app.patient.phone : '-')}">patient@clinic.com</td>
+                <td th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}">Dr. Sarah Jenkins</td>
+                <td th:text="${app.doctor.department != null ? app.doctor.department.name : 'N/A'}">Cardiology</td>
+                <td th:text="${app.schedule.availableDate}">2026-09-18</td>
+                <td th:text="${app.schedule.startTime + ' - ' + app.schedule.endTime}">9:00 AM - 10:00 AM</td>
+                <td th:text="${app.reason != null ? app.reason : '-'}">testing</td>
+                <td>
+                    <strong th:text="${app.status}">BOOKED</strong>
+                </td>
+                <td th:text="${app.createdAt != null ? #temporals.format(app.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">2026-09-18 10:00</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
