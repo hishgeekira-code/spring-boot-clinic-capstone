@@ -57,6 +57,36 @@ public class AppointmentService {
 	}
 	
 	@Transactional
+	public Appointment updateAppointmentStatus(Long appointmentId, AppointmentStatus newStatus) {
+		Appointment appointment = appointmentRepository.findById(appointmentId)
+				.orElseThrow(() -> new RuntimeException("Appointment not found with id: " + appointmentId));
+		
+		AppointmentStatus oldStatus = appointment.getStatus();
+		
+		// COMPLETE bolson zahialga tsutsalj bolohgvi
+		if (oldStatus == AppointmentStatus.COMPLETED && newStatus == AppointmentStatus.CANCELLED) {
+			throw new IllegalStateException("Cannot cancel a completed appointment.");
+		}
+		
+		appointment.setStatus(newStatus);
+		
+		// herew tsutslagdwal tsagiin huwaariig butsaaj sullana
+		Schedule schedule = appointment.getSchedule();
+		if (schedule != null) {
+			if (newStatus == AppointmentStatus.CANCELLED) {
+				schedule.setAvailable(true);
+				scheduleRepository.save(schedule);
+			} else if (oldStatus == AppointmentStatus.CANCELLED && newStatus != AppointmentStatus.CANCELLED) {
+				// Herew tsutslagdsan baisniig butsaaj idewhjvvlwel huwaariig haana
+				schedule.setAvailable(false);
+				scheduleRepository.save(schedule);
+			}
+		}
+		
+		return appointmentRepository.save(appointment);
+	}
+	
+	@Transactional
 	public void cancelAppointment(Long appointmentId, Long currentUserId) {
 		Appointment appointment = appointmentRepository.findById(appointmentId)
 				.orElseThrow(() -> new RuntimeException("Appointment not found with id: " + appointmentId));
