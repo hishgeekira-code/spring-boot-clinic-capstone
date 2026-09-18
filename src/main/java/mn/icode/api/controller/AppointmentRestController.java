@@ -1,5 +1,7 @@
 package mn.icode.api.controller;
 
+import mn.icode.model.Appointment;
+import mn.icode.model.AppointmentStatus;
 import mn.icode.model.User;
 import mn.icode.repository.UserRepository;
 import mn.icode.service.AppointmentService;
@@ -20,6 +22,34 @@ public class AppointmentRestController {
     public AppointmentRestController(AppointmentService appointmentService, UserRepository userRepository) {
         this.appointmentService = appointmentService;
         this.userRepository = userRepository;
+    }
+    
+    @GetMapping
+    public ResponseEntity<?> getAllAppointments() {
+    	return ResponseEntity.ok(appointmentService.getAllAppointments());
+    }
+    
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateAppointmentStatus(@PathVariable Long id,
+    												 @RequestBody Map<String, String> payload) {
+    	String statusStr = payload.get("status");
+    	if (statusStr == null) {
+    		return ResponseEntity.badRequest().body(Map.of("error", "Status field is required."));
+    	}
+    	
+    	try {
+    		AppointmentStatus status = AppointmentStatus.valueOf(statusStr.toUpperCase());
+    		Appointment updated = appointmentService.updateAppointmentStatus(id, status);
+    		return ResponseEntity.ok(Map.of(
+    				"message", "Appointment status updated successfully.",
+    				"id", updated.getId(),
+    				"status", updated.getStatus()
+    		));
+    	} catch (IllegalArgumentException e) {
+    		return ResponseEntity.badRequest().body(Map.of("error", "Invalid appointment status value: " + statusStr));
+    	} catch (IllegalStateException e) {
+    		return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    	}
     }
 
     @PutMapping("/{id}/cancel")
