@@ -35,8 +35,8 @@ public class AppointmentService {
 			throw new IllegalStateException("This schedule time slot is already booked or unavailable.");
 		}
 		
-		if (appointmentRepository.existsByScheduleId(scheduleId)) {
-			throw new IllegalStateException("An appointment already exists for this schedule.");
+		if (appointmentRepository.existsByScheduleIdAndStatusNot(scheduleId, AppointmentStatus.CANCELLED)) {
+		    throw new IllegalStateException("An active appointment already exists for this schedule.");
 		}
 		
 		Doctor doctor = schedule.getDoctor();
