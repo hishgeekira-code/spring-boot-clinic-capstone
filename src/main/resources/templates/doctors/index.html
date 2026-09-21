@@ -1,32 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Our Doctors - Clinic</title>
+    <title>Doctors - Clinic Appointment System</title>
 </head>
 <body>
-    <h2>Our Medical Specialists</h2>
+    <h2>Doctors List</h2>
+    <p>
+        <a th:href="@{/}">Home</a> | 
+        <a th:href="@{/my-appointments}">My Appointments</a> | 
+        <a th:href="@{/login}">Login</a>
+    </p>
     <hr/>
 
+    <!-- Хайлт ба шүүлтүүрийн форм -->
+    <h3>Search & Filter Doctors</h3>
+    <form th:action="@{/doctors}" method="get">
+        <label>Name:</label>
+        <input type="text" name="name" th:value="${name}" placeholder="Search doctor name..." />
+
+        <label style="margin-left: 10px;">Department:</label>
+        <select name="departmentId">
+            <option value="">-- All Departments --</option>
+            <option th:each="dept : ${departments}" 
+                    th:value="${dept.id}" 
+                    th:text="${dept.name}" 
+                    th:selected="${dept.id == departmentId}">
+            </option>
+        </select>
+
+        <label style="margin-left: 10px;">Specialization:</label>
+        <input type="text" name="specialization" th:value="${specialization}" placeholder="e.g. Cardiologist" />
+
+        <button type="submit" style="margin-left: 10px;">Search</button>
+        <a th:href="@{/doctors}" style="margin-left: 5px;">Reset</a>
+    </form>
+    <hr/>
+
+    <!-- Эмч нарын үр дүнгийн жагсаалт -->
     <div th:if="${#lists.isEmpty(doctors)}">
-        <p>No active doctors available at the moment.</p>
+        <p>No doctors found matching your criteria.</p>
     </div>
 
     <table border="1" cellpadding="8" th:if="${!#lists.isEmpty(doctors)}">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Specialization</th>
                 <th>Department</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="doc : ${doctors}" th:if="${doc.active}">
+            <tr th:each="doc : ${doctors}">
+                <td th:text="${doc.id}">1</td>
                 <td th:text="${'Dr. ' + doc.firstName + ' ' + doc.lastName}">Dr. John Doe</td>
                 <td th:text="${doc.specialization}">Cardiologist</td>
                 <td th:text="${doc.department != null ? doc.department.name : 'N/A'}">Cardiology</td>
                 <td>
-                    <a th:href="@{/doctors/{id}(id=${doc.id})}">View Profile</a>
+                    <span th:text="${doc.active ? 'Active' : 'Inactive'}">Active</span>
+                </td>
+                <td>
+                    <a th:href="@{/doctors/{id}(id=${doc.id})}">View Profile & Schedules</a>
                 </td>
             </tr>
         </tbody>
