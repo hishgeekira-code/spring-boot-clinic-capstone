@@ -67,5 +67,32 @@
             </tr>
         </tbody>
     </table>
+    
+    <!-- Pagination Controls -->
+    <div th:if="${totalPages > 1}" style="margin-top: 20px;">
+        <!-- Өмнөх хуудас -->
+        <a th:if="${currentPage > 0}" 
+           th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${currentPage - 1})}">
+           &laquo; Previous
+        </a>
+        <span th:unless="${currentPage > 0}" style="color: gray;">&laquo; Previous</span>
+
+        <!-- Хуудасны дугаарууд -->
+        <span style="margin: 0 10px;">
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i != currentPage}" 
+                   th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${i})}" 
+                   th:text="${i + 1}" style="margin: 0 4px;">1</a>
+                <strong th:if="${i == currentPage}" th:text="${i + 1}" style="margin: 0 4px; text-decoration: underline;">1</strong>
+            </span>
+        </span>
+
+        <!-- Дараах хуудас -->
+        <a th:if="${currentPage < totalPages - 1}" 
+           th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${currentPage + 1})}">
+           Next &raquo;
+        </a>
+        <span th:unless="${currentPage < totalPages - 1}" style="color: gray;">Next &raquo;</span>
+    </div>
 </body>
 </html>

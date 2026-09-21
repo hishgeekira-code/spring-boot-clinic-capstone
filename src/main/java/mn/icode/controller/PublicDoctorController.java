@@ -5,6 +5,9 @@ import mn.icode.service.DepartmentService;
 import mn.icode.service.DoctorService;
 import mn.icode.service.ScheduleService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +35,16 @@ public class PublicDoctorController {
     public String listDoctors(@RequestParam(required = false) String name,
     						  @RequestParam(required = false) Long departmentId,
     						  @RequestParam(required = false) String specialization,
+    						  @RequestParam(defaultValue = "0") int page,
+    						  @RequestParam(defaultValue = "5") int size,
     						  Model model) {
-        model.addAttribute("doctors", doctorService.searchDoctors(name, departmentId, specialization));
+    	Pageable pageable = PageRequest.of(page, size);
+    	Page<Doctor> doctorPage = doctorService.searchDoctorsPaginated(name, departmentId, specialization, pageable);
+    	
+        model.addAttribute("doctorPage", doctorPage);
+        model.addAttribute("doctors", doctorPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", doctorPage.getTotalPages());
         model.addAttribute("departments", departmentService.getAllDepartments());
         model.addAttribute("name", name);
         model.addAttribute("departmentId", departmentId);
