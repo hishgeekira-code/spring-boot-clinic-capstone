@@ -1,21 +1,27 @@
 package mn.icode.controller;
 
+import mn.icode.service.DashboardService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DashboardController {
 
+    private final DashboardService dashboardService;
+
+    public DashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
+    }
+
     @GetMapping("/admin")
-    @ResponseBody
-    public String adminDashboard() {
-        return "<h1>Admin Dashboard (Access Granted)</h1>";
+    public String adminDashboard(Model model) {
+        model.addAttribute("stats", dashboardService.getDashboardStatistics());
+        return "admin/dashboard";
     }
 
     @GetMapping("/customer/dashboard")
-    @ResponseBody
     public String customerDashboard() {
-        return "<h1>Customer Dashboard (Access Granted)</h1>";
+        return "redirect:/my-appointments";
     }
 }
