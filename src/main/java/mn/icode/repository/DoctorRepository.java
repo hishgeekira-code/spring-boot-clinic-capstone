@@ -2,9 +2,9 @@ package mn.icode.repository;
 
 import mn.icode.model.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-public interface DoctorRepository extends JpaRepository<Doctor, Long> {
-    List<Doctor> findByDepartmentId(Long departmentId);
-    List<Doctor> findByActiveTrue();
+@Repository
+public interface DoctorRepository extends JpaRepository<Doctor, Long>, JpaSpecificationExecutor<Doctor> {
 }
