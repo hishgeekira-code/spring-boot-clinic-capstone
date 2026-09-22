@@ -2,6 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Admin - Appointment Management</title>
+    <!-- Spring Security CSRF Токенууд -->
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+
+	<!-- Цаашид CSS холбох үед ингэж дуудна -->
+    <!-- <link rel="stylesheet" th:href="@{/css/style.css}"> -->
+
+    <!-- JS файлыг defer-тэйгээр head дотор дуудах -->
+    <script th:src="@{/js/appointments.js}" defer></script>
 </head>
 <body>
     <h2>Admin - Appointment Dashboard</h2>
@@ -12,6 +21,9 @@
         <a th:href="@{/logout}">Logout</a>
     </p>
     <hr/>
+
+    <!-- Мэдэгдэл харуулах хэсэг -->
+    <div id="alert-box" style="display: none; padding: 10px; margin-bottom: 15px; font-weight: bold; border-radius: 4px;"></div>
 
     <div th:if="${successMessage}" style="color: green; font-weight: bold;">
         <p th:text="${successMessage}"></p>
@@ -44,18 +56,17 @@
                 <td th:text="${app.schedule.availableDate + ' (' + app.schedule.startTime + ' - ' + app.schedule.endTime + ')'}">2026-09-18 (9:00 AM - 10:00 AM)</td>
                 <td th:text="${app.reason != null ? app.reason : '-'}">testing</td>
                 <td>
-                    <strong th:text="${app.status}">BOOKED</strong>
+                    <strong th:id="'status-label-' + ${app.id}" th:text="${app.status}">BOOKED</strong>
                 </td>
                 <td>
-                    <form th:action="@{/admin/appointments/{id}/status(id=${app.id})}" method="post" style="display:inline;">
-                        <select name="status" onchange="this.form.submit()">
-                            <option th:each="st : ${statuses}" 
-                                    th:value="${st}" 
-                                    th:text="${st}" 
-                                    th:selected="${st == app.status}">
-                            </option>
-                        </select>
-                    </form>
+                    <select th:id="'status-select-' + ${app.id}" 
+                            th:onchange="'changeAppointmentStatus(' + ${app.id} + ', this.value)'">
+                        <option th:each="st : ${statuses}" 
+                                th:value="${st}" 
+                                th:text="${st}" 
+                                th:selected="${st == app.status}">
+                        </option>
+                    </select>
                 </td>
             </tr>
         </tbody>
