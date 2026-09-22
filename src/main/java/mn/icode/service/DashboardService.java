@@ -29,7 +29,7 @@ public class DashboardService {
 		long totalDoctors = doctorRepository.count();
 		long totalPatients = userRepository.countByRole(Role.CUSTOMER);
 		long todayAppointments = appointmentRepository.countTodayAppointments(LocalDate.now());
-		long bookedAppointments = appointmentRepository.countByStatus(AppointmentStatus.BOOKED);
+		long bookedAppointments = appointmentRepository.countByStatus(AppointmentStatus.CONFIRMED);
 		long completedAppointments = appointmentRepository.countByStatus(AppointmentStatus.COMPLETED);
 		long cancelledAppointments = appointmentRepository.countByStatus(AppointmentStatus.CANCELLED);
 		
