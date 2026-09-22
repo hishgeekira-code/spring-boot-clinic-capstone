@@ -1,6 +1,7 @@
 package mn.icode.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "doctors")
@@ -10,12 +11,15 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "First name is required")
     @Column(nullable = false)
     private String firstName;
 
+    @NotBlank(message = "Last name is required")
     @Column(nullable = false)
     private String lastName;
 
+    @NotBlank(message = "Specialization is required")
     @Column(nullable = false)
     private String specialization;
 

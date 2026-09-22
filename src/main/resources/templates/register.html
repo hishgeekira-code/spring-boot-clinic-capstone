@@ -5,27 +5,40 @@
 </head>
 <body>
     <h2>Register Customer Account</h2>
+
+    <!-- Серверээс ирэх ерөнхий алдаа (жишээ нь: имэйл бүртгэлтэй байна гэх мэт) -->
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+
     <form th:action="@{/register}" th:object="${user}" method="post">
         <div>
             <label>First Name:</label>
-            <input type="text" th:field="*{firstName}" required />
+            <input type="text" th:field="*{firstName}" />
+            <p th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" style="color: red; margin: 4px 0;"></p>
         </div>
+        <br/>
         <div>
             <label>Last Name:</label>
-            <input type="text" th:field="*{lastName}" required />
+            <input type="text" th:field="*{lastName}" />
+            <p th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" style="color: red; margin: 4px 0;"></p>
         </div>
+        <br/>
         <div>
             <label>Email:</label>
-            <input type="email" th:field="*{email}" required />
+            <input type="email" th:field="*{email}" />
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red; margin: 4px 0;"></p>
         </div>
+        <br/>
         <div>
             <label>Password:</label>
-            <input type="password" th:field="*{password}" required />
+            <input type="password" th:field="*{password}" />
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color: red; margin: 4px 0;"></p>
         </div>
+        <br/>
         <div>
             <label>Phone:</label>
             <input type="text" th:field="*{phone}" />
         </div>
+        <br/>
         <button type="submit">Register</button>
     </form>
     <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
