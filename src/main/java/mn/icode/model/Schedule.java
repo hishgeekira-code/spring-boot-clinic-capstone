@@ -1,6 +1,9 @@
 package mn.icode.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -16,12 +19,16 @@ public class Schedule {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    @NotNull(message = "Date is required")
+    @FutureOrPresent(message = "Schedule date must be today or in the future")
     @Column(nullable = false)
     private LocalDate availableDate;
 
+    @NotNull(message = "Start time is required")
     @Column(nullable = false)
     private LocalTime startTime;
 
+    @NotNull(message = "End time is required")
     @Column(nullable = false)
     private LocalTime endTime;
 

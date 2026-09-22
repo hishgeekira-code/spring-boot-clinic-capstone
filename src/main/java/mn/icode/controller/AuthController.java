@@ -4,7 +4,10 @@ import mn.icode.model.User;
 import mn.icode.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 @Controller
 public class AuthController {
@@ -27,8 +30,19 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user) {
-        userService.registerCustomer(user);
-        return "redirect:/login?success";
+    public String registerUser(@Valid @ModelAttribute("user") User user,
+    						   BindingResult bindingResult,
+    						   Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "register";
+        }
+        
+        try {
+        	userService.registerCustomer(user);
+        	return "redirect:/login?registered=true";
+        } catch (IllegalArgumentException e) {
+        	model.addAttribute("errorMessage", e.getMessage());
+        	return "register";
+        }
     }
 }
