@@ -7,7 +7,7 @@ public class DashboardStatsDto {
 	private long bookedAppointments;
 	private long completedAppointments;
 	private long cancelledAppointments;
-	
+
 	public DashboardStatsDto(long totalDoctors, long totalPatients, long todayAppointments, long bookedAppointments,
 			long completedAppointments, long cancelledAppointments) {
 		this.totalDoctors = totalDoctors;

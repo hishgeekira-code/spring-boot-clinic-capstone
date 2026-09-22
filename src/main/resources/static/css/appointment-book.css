@@ -1,0 +1,90 @@
+/* Захиалгын үндсэн картын өргөн болон төвлөрүүлэлт */
+.booking-card {
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* Сонгосон эмч, цагийн хуваарийн хураангуй мэдээллийн блок */
+.booking-summary-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0 25px 0;
+}
+
+.booking-summary-card h3 {
+    margin-bottom: 14px;
+    font-size: 1.1rem;
+    color: #1e293b;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+}
+
+.summary-item {
+    font-size: 0.93rem;
+    color: #475569;
+}
+
+.summary-item strong {
+    color: #1e293b;
+    display: inline-block;
+    min-width: 100px;
+}
+
+.summary-badge {
+    display: inline-block;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Шалтгаан/Тайлбар оруулах талбар */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #ffffff;
+}
+
+.form-group textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* Баталгаажуулах товчны тохиргоо */
+.btn-book {
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+@media (max-width: 560px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}

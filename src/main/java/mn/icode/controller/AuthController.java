@@ -1,13 +1,15 @@
 package mn.icode.controller;
 
-import mn.icode.model.User;
-import mn.icode.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
+import mn.icode.model.User;
+import mn.icode.service.UserService;
 
 @Controller
 public class AuthController {
@@ -31,18 +33,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") User user,
-    						   BindingResult bindingResult,
-    						   Model model) {
+                               BindingResult bindingResult,
+                               Model model) {
         if (bindingResult.hasErrors()) {
-        	return "register";
+            return "register";
         }
-        
+
         try {
-        	userService.registerCustomer(user);
-        	return "redirect:/login?registered=true";
+            userService.registerCustomer(user);
+            // login.html дээрх param.success шалгалттай нийцүүлж зассан
+            return "redirect:/login?success";
         } catch (IllegalArgumentException e) {
-        	model.addAttribute("errorMessage", e.getMessage());
-        	return "register";
+            model.addAttribute("errorMessage", e.getMessage());
+            return "register";
         }
     }
 }

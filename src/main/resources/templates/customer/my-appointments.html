@@ -1,54 +1,87 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>My Appointments - Clinic</title>
+    <meta charset="UTF-8">
+    <title>My Appointments - Clinic Appointment System</title>
+    <!-- Нийтлэг суурь CSS болон Захиалгын тусгай CSS -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/my-appointments.css}">
 </head>
 <body>
-    <h2>My Appointments</h2>
-    <a th:href="@{/doctors}">Find Doctors & Schedules</a> | 
-    <a th:href="@{/logout}">Logout</a>
-    <hr/>
+    <div class="container">
+        <h2>My Appointments</h2>
 
-    <div th:if="${successMessage}" style="color: green; font-weight: bold;">
-        <p th:text="${successMessage}"></p>
-    </div>
-    <div th:if="${errorMessage}" style="color: red; font-weight: bold;">
-        <p th:text="${errorMessage}"></p>
-    </div>
+        <!-- Шинэ Навигаци -->
+        <nav class="main-navbar">
+            <div class="nav-group">
+                <a th:href="@{/doctors}" class="nav-item">Doctors</a>
+                <a th:href="@{/my-appointments}" class="nav-item active">My Appointments</a>
+            </div>
 
-    <div th:if="${#lists.isEmpty(appointments)}">
-        <p>You have no appointments booked.</p>
-    </div>
+            <div class="nav-group">
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="nav-btn-logout">Logout</button>
+                </form>
+            </div>
+        </nav>
+        <hr/>
 
-    <table border="1" cellpadding="8" th:if="${!#lists.isEmpty(appointments)}">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Doctor</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="app : ${appointments}">
-                <td th:text="${app.id}">1</td>
-                <td th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}">Dr. Smith</td>
-                <td th:text="${app.schedule.availableDate}">2026-09-20</td>
-                <td th:text="${app.schedule.startTime + ' - ' + app.schedule.endTime}">09:00 - 10:00</td>
-                <td th:text="${app.reason != null ? app.reason : '-'}">General Checkup</td>
-                <td th:text="${app.status}">PENDING</td>
-                <td>
-                    <form th:if="${app.status.name() != 'CANCELLED' and app.status.name() != 'COMPLETED'}"
-                          th:action="@{/appointments/cancel/{id}(id=${app.id})}" method="post" style="display:inline;">
-                        <button type="submit" onclick="return confirm('Are you sure you want to cancel this appointment?')">Cancel</button>
-                    </form>
-                    <span th:if="${app.status.name() == 'CANCELLED'}">Cancelled</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        <!-- Мэдэгдэл харуулах хэсэг -->
+        <div th:if="${successMessage}" class="alert-message alert-success">
+            <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert-message alert-error">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <!-- Хоосон үед харагдах хэсэг -->
+        <div th:if="${#lists.isEmpty(appointments)}" class="empty-state">
+            <p>You haven't booked any appointments yet.</p>
+            <a th:href="@{/doctors}" class="btn btn-primary">Find a Doctor & Book Now</a>
+        </div>
+
+        <!-- Захиалгын жагсаалт хүснэгт -->
+        <div class="table-responsive" th:if="${!#lists.isEmpty(appointments)}">
+            <table class="appointments-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">ID</th>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Date & Time</th>
+                        <th>Reason</th>
+                        <th style="width: 130px;">Status</th>
+                        <th style="width: 100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="app : ${appointments}">
+                        <td th:text="${app.id}">1</td>
+                        <td th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}" style="font-weight: 500;">Dr. Sarah Jenkins</td>
+                        <td th:text="${app.doctor.department != null ? app.doctor.department.name : 'N/A'}" style="color: #64748b;">Cardiology</td>
+                        <td th:text="${app.schedule.availableDate + ' (' + app.schedule.startTime + ' - ' + app.schedule.endTime + ')'}">2026-09-25 (09:00 - 10:00)</td>
+                        <td th:text="${app.reason != null and !#strings.isEmpty(app.reason) ? app.reason : '-'}" style="color: #64748b;">Routine Checkup</td>
+                        <td>
+                            <!-- Статусын өнгө ялгах -->
+                            <span th:if="${#strings.toString(app.status) == 'BOOKED'}" class="badge-status status-booked">BOOKED</span>
+                            <span th:if="${#strings.toString(app.status) == 'COMPLETED'}" class="badge-status status-completed">COMPLETED</span>
+                            <span th:if="${#strings.toString(app.status) == 'CANCELLED'}" class="badge-status status-cancelled">CANCELLED</span>
+                        </td>
+                        <td>
+                            <!-- Зөвхөн BOOKED статустай үед цуцлах боломжтой -->
+                            <form th:if="${#strings.toString(app.status) == 'BOOKED'}" 
+                                  th:action="@{/appointments/cancel/{id}(id=${app.id})}" 
+                                  method="post" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                <button type="submit" class="btn-cancel">Cancel</button>
+                            </form>
+                            <span th:unless="${#strings.toString(app.status) == 'BOOKED'}" style="color: #94a3b8;">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

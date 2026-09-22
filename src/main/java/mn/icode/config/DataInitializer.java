@@ -1,14 +1,19 @@
 package mn.icode.config;
 
-import mn.icode.model.*;
-import mn.icode.repository.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import mn.icode.model.Doctor;
+import mn.icode.model.Role;
+import mn.icode.model.Schedule;
+import mn.icode.model.User;
+import mn.icode.repository.DoctorRepository;
+import mn.icode.repository.ScheduleRepository;
+import mn.icode.repository.UserRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -50,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
             customer.setRole(Role.CUSTOMER); // Role enum ашиглав
             userRepository.save(customer);
         }
-        
+
         if (scheduleRepository.count() == 0 && doctorRepository.count() > 0) {
             Doctor doctor = doctorRepository.findAll().get(0);
             Schedule schedule = new Schedule();

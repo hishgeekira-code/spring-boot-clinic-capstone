@@ -1,10 +1,11 @@
 package mn.icode.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import mn.icode.model.Role;
 import mn.icode.model.User;
 import mn.icode.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {

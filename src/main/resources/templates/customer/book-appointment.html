@@ -1,32 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Book Appointment - Clinic</title>
+    <!-- Нийтлэг суурь CSS болон Захиалгын хуудасны CSS -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/appointment-book.css}">
 </head>
 <body>
-    <h2>Confirm Appointment Booking</h2>
-    <a th:href="@{/doctors}">← Back to Doctors</a>
-    <hr/>
-
-    <div>
-        <p><strong>Doctor:</strong> <span th:text="${'Dr. ' + schedule.doctor.firstName + ' ' + schedule.doctor.lastName}">Dr. Name</span></p>
-        <p><strong>Specialization:</strong> <span th:text="${schedule.doctor.specialization}">Specialization</span></p>
-        <p><strong>Date:</strong> <span th:text="${schedule.availableDate}">2026-09-20</span></p>
-        <p><strong>Time:</strong> <span th:text="${schedule.startTime + ' - ' + schedule.endTime}">09:00 - 10:00</span></p>
-    </div>
-
-    <hr/>
-
-    <form th:action="@{/appointments/book}" method="post">
-        <input type="hidden" name="scheduleId" th:value="${schedule.id}" />
+    <div class="container booking-card">
+        <h2>Confirm Appointment Booking</h2>
         
-        <div>
-            <label>Reason for Visit (Optional):</label><br/>
-            <textarea name="reason" rows="4" cols="40" placeholder="Describe your symptoms..."></textarea>
+        <div class="nav-menu">
+            <a th:href="@{/doctors}">← Back to Doctors</a>
+        </div>
+        <hr/>
+
+        <!-- Хуваарийн мэдээлэл -->
+        <div class="booking-summary-card">
+            <h3>Appointment Details</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <strong>Doctor:</strong>
+                    <span th:text="${'Dr. ' + schedule.doctor.firstName + ' ' + schedule.doctor.lastName}">Dr. Name</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Specialization:</strong>
+                    <span th:text="${schedule.doctor.specialization}">Specialization</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Date:</strong>
+                    <span class="summary-badge" th:text="${schedule.availableDate}">2026-09-20</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Time:</strong>
+                    <span class="summary-badge" th:text="${schedule.startTime + ' - ' + schedule.endTime}">09:00 - 10:00</span>
+                </div>
+            </div>
         </div>
 
-        <br/>
-        <button type="submit">Confirm & Book Appointment</button>
-    </form>
+        <!-- Захиалга баталгаажуулах форм -->
+        <form th:action="@{/appointments/book}" method="post">
+            <input type="hidden" name="scheduleId" th:value="${schedule.id}" />
+            
+            <div class="form-group">
+                <label for="reason">Reason for Visit (Optional):</label>
+                <textarea id="reason" name="reason" rows="4" placeholder="Describe your symptoms or reason for the visit..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-book">Confirm & Book Appointment</button>
+        </form>
+    </div>
 </body>
 </html>

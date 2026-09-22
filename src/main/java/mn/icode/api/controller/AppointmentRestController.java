@@ -1,16 +1,22 @@
 package mn.icode.api.controller;
 
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import mn.icode.model.Appointment;
 import mn.icode.model.AppointmentStatus;
 import mn.icode.model.User;
 import mn.icode.repository.UserRepository;
 import mn.icode.service.AppointmentService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -23,12 +29,12 @@ public class AppointmentRestController {
         this.appointmentService = appointmentService;
         this.userRepository = userRepository;
     }
-    
+
     @GetMapping
     public ResponseEntity<?> getAllAppointments() {
     	return ResponseEntity.ok(appointmentService.getAllAppointments());
     }
-    
+
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateAppointmentStatus(@PathVariable Long id,
     												 @RequestBody Map<String, String> payload) {
@@ -36,7 +42,7 @@ public class AppointmentRestController {
     	if (statusStr == null) {
     		return ResponseEntity.badRequest().body(Map.of("error", "Status field is required."));
     	}
-    	
+
     	try {
     		AppointmentStatus status = AppointmentStatus.valueOf(statusStr.toUpperCase());
     		Appointment updated = appointmentService.updateAppointmentStatus(id, status);

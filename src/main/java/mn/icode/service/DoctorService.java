@@ -1,14 +1,16 @@
 package mn.icode.service;
 
-import mn.icode.model.Doctor;
-import mn.icode.repository.DoctorRepository;
-import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import jakarta.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.List;
+import mn.icode.model.Doctor;
+import mn.icode.repository.DoctorRepository;
 
 @Service
 public class DoctorService {
@@ -35,30 +37,30 @@ public class DoctorService {
     public void deleteDoctor(Long id) {
         doctorRepository.deleteById(id);
     }
-    
+
     public Page<Doctor> searchDoctorsPaginated(String name, Long departmentId, String specialization, Pageable pageable) {
     	Specification<Doctor> spec = (root, query, criteriaBuilder) -> {
     		List<Predicate> predicates = new ArrayList<>();
-    		
+
     		if (name != null && !name.trim().isEmpty()) {
     			String searchPattern = "%" + name.trim().toLowerCase() + "%";
     			Predicate firstNameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), searchPattern);
     			Predicate lastNameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), searchPattern);
     			predicates.add(criteriaBuilder.or(firstNameMatch, lastNameMatch));
     		}
-    		
+
     		if (departmentId != null) {
     			predicates.add(criteriaBuilder.equal(root.get("department").get("id"), departmentId));
     		}
-    		
+
     		if (specialization != null && !specialization.trim().isEmpty()) {
     			String specPattern = "%" + specialization.trim().toLowerCase() + "%";
     			predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("specialization")), specPattern));
     		}
-    		
+
     		return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     	};
-    	
+
     	return doctorRepository.findAll(spec, pageable);
     }
 }

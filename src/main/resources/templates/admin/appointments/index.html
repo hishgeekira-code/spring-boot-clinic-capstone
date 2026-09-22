@@ -1,75 +1,115 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Admin - Appointment Management</title>
-    <!-- Spring Security CSRF Токенууд -->
-    <meta name="_csrf" th:content="${_csrf?.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
-
-	<!-- Цаашид CSS холбох үед ингэж дуудна -->
-    <!-- <link rel="stylesheet" th:href="@{/css/style.css}"> -->
-
-    <!-- JS файлыг defer-тэйгээр head дотор дуудах -->
-    <script th:src="@{/js/appointments.js}" defer></script>
+<meta charset="UTF-8">
+<title>Admin - Appointment Management</title>
+<!-- Эхлээд common, дараа нь тухайн хуудасныхаа css-ийг дуудна -->
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/appointment-index.css}">
+<script th:src="@{/js/appointments.js}" defer></script>
 </head>
 <body>
-    <h2>Admin - Appointment Dashboard</h2>
-    <p>
-        <a th:href="@{/admin}">← Back to Admin Home</a> | 
-        <a th:href="@{/admin/doctors}">Manage Doctors</a> | 
-        <a th:href="@{/admin/schedules}">Manage Schedules</a> | 
-        <a th:href="@{/logout}">Logout</a>
-    </p>
-    <hr/>
+	<div class="container">
+		<h2>Admin - Appointment Dashboard</h2>
 
-    <!-- Мэдэгдэл харуулах хэсэг -->
-    <div id="alert-box" style="display: none; padding: 10px; margin-bottom: 15px; font-weight: bold; border-radius: 4px;"></div>
+		<!-- Загварлаг Навигацийн мөр -->
+		<nav class="main-navbar">
+			<div class="nav-group">
+				<a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a> <a
+					th:href="@{/admin/departments}" class="nav-item">Departments</a> <a
+					th:href="@{/admin/doctors}" class="nav-item">Doctors</a> <a
+					th:href="@{/admin/schedules}" class="nav-item">Schedules</a> <a
+					th:href="@{/admin/appointments}" class="nav-item active">Appointments</a>
+			</div>
 
-    <div th:if="${successMessage}" style="color: green; font-weight: bold;">
-        <p th:text="${successMessage}"></p>
-    </div>
-    <div th:if="${errorMessage}" style="color: red; font-weight: bold;">
-        <p th:text="${errorMessage}"></p>
-    </div>
+			<div class="nav-group">
+				<form th:action="@{/logout}" method="post" style="margin: 0;">
+					<button type="submit" class="nav-btn-logout">Logout</button>
+				</form>
+			</div>
+		</nav>
+		<hr />
 
-    <div th:if="${#lists.isEmpty(appointments)}">
-        <p>No appointments found in the system.</p>
-    </div>
+		<!-- Мэдэгдэл харуулах хэсэг -->
+		<div id="alert-box"
+			style="display: none; padding: 12px 16px; margin-bottom: 20px; font-weight: 500; border-radius: 6px;"></div>
 
-    <table border="1" cellpadding="8" th:if="${!#lists.isEmpty(appointments)}">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Patient Name</th>
-                <th>Doctor</th>
-                <th>Date & Time</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Change Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="app : ${appointments}">
-                <td th:text="${app.id}">1</td>
-                <td th:text="${app.patient.firstName + ' ' + app.patient.lastName}">John Patient</td>
-                <td th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}">Dr. Sarah Jenkins</td>
-                <td th:text="${app.schedule.availableDate + ' (' + app.schedule.startTime + ' - ' + app.schedule.endTime + ')'}">2026-09-18 (9:00 AM - 10:00 AM)</td>
-                <td th:text="${app.reason != null ? app.reason : '-'}">testing</td>
-                <td>
-                    <strong th:id="'status-label-' + ${app.id}" th:text="${app.status}">BOOKED</strong>
-                </td>
-                <td>
-                    <select th:id="'status-select-' + ${app.id}" 
-                            th:onchange="'changeAppointmentStatus(' + ${app.id} + ', this.value)'">
-                        <option th:each="st : ${statuses}" 
-                                th:value="${st}" 
-                                th:text="${st}" 
-                                th:selected="${st == app.status}">
-                        </option>
-                    </select>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+		<div th:if="${successMessage}"
+			style="background-color: #dcfce7; color: #166534; padding: 12px 16px; border-radius: 6px; margin-bottom: 15px;">
+			<p th:text="${successMessage}"></p>
+		</div>
+		<div th:if="${errorMessage}"
+			style="background-color: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 6px; margin-bottom: 15px;">
+			<p th:text="${errorMessage}"></p>
+		</div>
+
+		<div th:if="${#lists.isEmpty(appointments)}"
+			style="padding: 20px; text-align: center; color: #64748b;">
+			<p>No appointments found in the system.</p>
+		</div>
+
+		<!-- Хүснэгтийн хэсэг -->
+		<div class="appointments-card">
+			<table class="appointment-table">
+				<thead>
+					<tr>
+						<th style="width: 50px;">ID</th>
+						<th>Patient Name</th>
+						<th>Doctor</th>
+						<th>Date & Time</th>
+						<th>Reason</th>
+						<th style="width: 130px;">Status</th>
+						<th style="width: 160px;">Change Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(appointments)}">
+						<td colspan="7"
+							style="text-align: center; color: #64748b; padding: 25px;">No
+							appointments found.</td>
+					</tr>
+					<tr th:each="app : ${appointments}">
+						<td th:text="${app.id}">1</td>
+						<td
+							th:text="${app.patient != null ? app.patient.firstName + ' ' + app.patient.lastName : 'N/A'}"
+							style="font-weight: 500;">John Doe</td>
+						<td
+							th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}">Dr.
+							Sarah Jenkins</td>
+						<td class="time-slot"
+							th:text="${app.schedule.availableDate + ' (' + app.schedule.startTime + ' - ' + app.schedule.endTime + ')'}">9/23/26
+							(9:00 AM - 10:00 AM)</td>
+						<td
+							th:text="${app.reason != null and !#strings.isEmpty(app.reason) ? app.reason : '-'}"
+							style="color: #64748b;">testing</td>
+						<td>
+							<!-- Статус бүрийн тусгай өнгөтэй badge --> <span
+							th:if="${#strings.toString(app.status) == 'BOOKED'}"
+							class="badge-status status-booked">BOOKED</span> <span
+							th:if="${#strings.toString(app.status) == 'COMPLETED'}"
+							class="badge-status status-completed">COMPLETED</span> <span
+							th:if="${#strings.toString(app.status) == 'CANCELLED'}"
+							class="badge-status status-cancelled">CANCELLED</span>
+						</td>
+						<td>
+							<form th:action="@{/admin/appointments/update-status}"
+								method="post" style="margin: 0;">
+								<input type="hidden" name="appointmentId" th:value="${app.id}" />
+								<select name="status" class="status-select"
+									onchange="this.form.submit()">
+									<option value="BOOKED"
+										th:selected="${#strings.toString(app.status) == 'BOOKED'}">BOOKED</option>
+									<option value="COMPLETED"
+										th:selected="${#strings.toString(app.status) == 'COMPLETED'}">COMPLETED</option>
+									<option value="CANCELLED"
+										th:selected="${#strings.toString(app.status) == 'CANCELLED'}">CANCELLED</option>
+								</select>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </body>
 </html>

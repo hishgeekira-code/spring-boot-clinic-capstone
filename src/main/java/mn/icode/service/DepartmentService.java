@@ -1,10 +1,11 @@
 package mn.icode.service;
 
-import mn.icode.model.Department;
-import mn.icode.repository.DepartmentRepository;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import mn.icode.model.Department;
+import mn.icode.repository.DepartmentRepository;
 
 @Service
 public class DepartmentService {
