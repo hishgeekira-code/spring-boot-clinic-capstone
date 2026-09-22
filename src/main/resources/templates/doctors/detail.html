@@ -1,41 +1,93 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Doctor Profile</title>
+    <meta charset="UTF-8">
+    <title>Doctor Profile - Clinic Appointment System</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor-detail.css}">
 </head>
 <body>
-    <a th:href="@{/doctors}">← Back to Doctors List</a>
-    <hr/>
+    <div class="container">
+        <!-- Загварлаг Навигацийн мөр -->
+        <nav class="main-navbar">
+            <div class="nav-left">
+                <a th:href="@{/doctors}" class="nav-link nav-link-back">← Back to Doctors List</a>
+            </div>
 
-    <h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. John Doe</h2>
-    <p><strong>Specialization:</strong> <span th:text="${doctor.specialization}">Cardiologist</span></p>
-    <p><strong>Department:</strong> <span th:text="${doctor.department != null ? doctor.department.name : 'N/A'}">Cardiology</span></p>
-    <p><strong>Bio:</strong></p>
-    <p th:text="${doctor.bio}">Doctor biography goes here...</p>
+            <div class="nav-right">
+                <!-- Нэвтэрсэн үед харагдах хэсэг -->
+                <span id="auth-logged-in" style="display: none; align-items: center; gap: 10px;">
+                    <a th:href="@{/my-appointments}" class="nav-link">My Appointments</a>
+                    <a th:href="@{/admin/dashboard}" id="admin-link" class="nav-link" style="display: none;">Admin Dashboard</a>
+                    <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                        <button type="submit" class="nav-btn-logout">Logout</button>
+                    </form>
+                </span>
 
-    <hr/>
-    <h3>Available Schedules</h3>
-    <div th:if="${#lists.isEmpty(schedules)}">
-        <p>No available schedules for this doctor at the moment.</p>
+                <!-- Зочин үед харагдах хэсэг -->
+                <span id="auth-guest" style="display: flex; align-items: center; gap: 8px;">
+                    <a th:href="@{/login}" class="nav-btn nav-btn-login">Login</a>
+                    <a th:href="@{/register}" class="nav-btn nav-btn-register">Register</a>
+                </span>
+            </div>
+        </nav>
+
+        <!-- Эмчийн дэлгэрэнгүй хэсэг -->
+        <div class="doctor-profile-card">
+            <h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. Michael Brown</h2>
+            <p><strong>Specialization:</strong> <span th:text="${doctor.specialization}">Neurologist</span></p>
+            <p><strong>Department:</strong> <span th:text="${doctor.department != null ? doctor.department.name : 'N/A'}">Neurology</span></p>
+            <p th:if="${doctor.bio != null and !#strings.isEmpty(doctor.bio)}">
+                <strong>Bio:</strong> <span th:text="${doctor.bio}">Specialist in nervous system disorders...</span>
+            </p>
+        </div>
+
+        <h3>Available Schedules</h3>
+        <div th:if="${#lists.isEmpty(schedules)}" style="padding: 20px 0; color: #64748b;">
+            <p>No available schedules for this doctor at the moment.</p>
+        </div>
+
+        <div class="table-responsive" th:if="${!#lists.isEmpty(schedules)}">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sch : ${schedules}">
+                        <td th:text="${sch.availableDate}" style="font-weight: 500;">2026-09-25</td>
+                        <td th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</td>
+                        <td>
+                            <a th:href="@{/appointments/book(scheduleId=${sch.id})}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">
+                                Book Appointment
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <table border="1" cellpadding="8" th:if="${!#lists.isEmpty(schedules)}">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Time Slot</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="sch : ${schedules}" th:if="${sch.available}">
-                <td th:text="${sch.availableDate}">2026-09-20</td>
-                <td th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</td>
-                <td>
-                    <a th:href="@{/appointments/book/{scheduleId}(scheduleId=${sch.id})}">Book Appointment</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Навигацийн төлөв шалгах скрипт -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var loggedIn = /*[[${isLoggedIn}]]*/ false;
+        var admin = /*[[${isAdmin}]]*/ false;
+
+        if (loggedIn === true) {
+            document.getElementById('auth-logged-in').style.display = 'inline-flex';
+            document.getElementById('auth-guest').style.display = 'none';
+            if (admin === true) {
+                document.getElementById('admin-link').style.display = 'inline';
+            }
+        } else {
+            document.getElementById('auth-logged-in').style.display = 'none';
+            document.getElementById('auth-guest').style.display = 'inline-flex';
+        }
+        /*]]>*/
+    </script>
 </body>
 </html>

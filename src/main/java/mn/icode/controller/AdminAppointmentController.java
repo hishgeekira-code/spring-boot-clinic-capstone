@@ -15,20 +15,20 @@ import mn.icode.service.AppointmentService;
 @Controller
 @RequestMapping("/admin/appointments")
 public class AdminAppointmentController {
-	
+
 	private final AppointmentService appointmentService;
-	
+
 	public AdminAppointmentController(AppointmentService appointmentService) {
 		this.appointmentService = appointmentService;
 	}
-	
+
 	@GetMapping
 	public String listAppointments(Model model) {
 		model.addAttribute("appointments", appointmentService.getAllAppointments());
 		model.addAttribute("statuses", AppointmentStatus.values());
 		return "admin/appointments/index";
 	}
-	
+
 	@PostMapping("/{id}/status")
 	public String updateStatus(@PathVariable Long id,
 							   @RequestParam("status") AppointmentStatus status,

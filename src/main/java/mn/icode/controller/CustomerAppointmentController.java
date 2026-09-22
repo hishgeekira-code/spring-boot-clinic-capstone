@@ -1,16 +1,20 @@
 package mn.icode.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import mn.icode.model.Schedule;
 import mn.icode.model.User;
 import mn.icode.repository.UserRepository;
 import mn.icode.service.AppointmentService;
 import mn.icode.service.ScheduleService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class CustomerAppointmentController {
@@ -74,17 +78,20 @@ public class CustomerAppointmentController {
     }
 
     @PostMapping("/appointments/cancel/{id}")
-    public String cancelAppointment(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes redirectAttributes) {
-    	User user = userRepository.findByEmail(userDetails.getUsername())
-    			.orElseThrow(() -> new RuntimeException("User not found"));
-        
-    	try {
-    		appointmentService.cancelAppointment(id, user.getId());
-    		redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully.");
-    	} catch (IllegalStateException e) {
-    		redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-    	}
-    	
-    	return "redirect:/customer/appointments";
+    public String cancelAppointment(@PathVariable Long id,
+                                   @AuthenticationPrincipal UserDetails userDetails,
+                                   RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        try {
+            appointmentService.cancelAppointment(id, user.getId());
+            redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        // Засагдсан хэсэг: Буруу /customer/appointments руу биш шууд /my-appointments руу очно
+        return "redirect:/my-appointments";
     }
 }

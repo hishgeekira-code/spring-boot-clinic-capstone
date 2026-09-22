@@ -1,74 +1,121 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Manage Schedules - Admin</title>
+    <!-- Нийтлэг суурь CSS болон Хуваарийн тусгай CSS -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/schedule-management.css}">
 </head>
 <body>
-    <h2>Doctor Schedule Management</h2>
-    <a th:href="@{/admin}">Back to Admin Dashboard</a> | 
-    <a th:href="@{/admin/doctors}">Manage Doctors</a>
-    <hr/>
-
-    <h3>Add / Edit Schedule</h3>
-    <form th:action="@{/admin/schedules/save}" th:object="${schedule}" method="post">
-        <input type="hidden" th:field="*{id}" />
+    <div class="container">
+        <h2>Doctor Schedule Management</h2>
         
-        <div>
-            <label>Doctor:</label>
-            <select th:field="*{doctor.id}" required>
-                <option value="">-- Select Doctor --</option>
-                <option th:each="doc : ${doctors}" 
-                        th:value="${doc.id}" 
-                        th:text="${'Dr. ' + doc.firstName + ' ' + doc.lastName + ' (' + doc.specialization + ')'}"></option>
-            </select>
-        </div>
-        <div>
-            <label>Date:</label>
-            <input type="date" th:field="*{availableDate}" required />
-        </div>
-        <div>
-            <label>Start Time:</label>
-            <input type="time" th:field="*{startTime}" required />
-        </div>
-        <div>
-            <label>End Time:</label>
-            <input type="time" th:field="*{endTime}" required />
-        </div>
-        <div>
-            <label>Available:</label>
-            <input type="checkbox" th:field="*{available}" />
-        </div>
-        
-        <button type="submit">Save Schedule</button>
-    </form>
+        <!-- Загварлаг Навигацийн мөр -->
+        <nav class="main-navbar">
+            <div class="nav-group">
+                <a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a>
+                <a th:href="@{/admin/departments}" class="nav-item">Departments</a>
+                <a th:href="@{/admin/doctors}" class="nav-item">Doctors</a>
+                <a th:href="@{/admin/schedules}" class="nav-item active">Schedules</a>
+                <a th:href="@{/admin/appointments}" class="nav-item">Appointments</a>
+            </div>
 
-    <hr/>
+            <div class="nav-group">
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="nav-btn-logout">Logout</button>
+                </form>
+            </div>
+        </nav>
+        <hr/>
 
-    <h3>Schedule List</h3>
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Doctor</th>
-                <th>Date</th>
-                <th>Time Slot</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="sch : ${schedules}">
-                <td th:text="${sch.id}">1</td>
-                <td th:text="${sch.doctor != null ? 'Dr. ' + sch.doctor.firstName + ' ' + sch.doctor.lastName : 'N/A'}">Dr. John Doe</td>
-                <td th:text="${sch.availableDate}">2026-09-20</td>
-                <td th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</td>
-                <td th:text="${sch.available ? 'Available' : 'Booked / Unavailable'}">Available</td>
-                <td>
-                    <a th:href="@{/admin/schedules/edit/{id}(id=${sch.id})}">Edit</a> | 
-                    <a th:href="@{/admin/schedules/delete/{id}(id=${sch.id})}" onclick="return confirm('Are you sure?')">Delete</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        <!-- Add / Edit Schedule Form -->
+        <div class="schedule-form-card">
+            <h3 th:text="${schedule.id != null ? 'Edit Schedule (ID: ' + schedule.id + ')' : 'Add New Schedule'}">Add / Edit Schedule</h3>
+            
+            <form th:action="@{/admin/schedules/save}" th:object="${schedule}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Doctor:</label>
+                        <select name="doctor" required>
+                            <option value="">-- Select Doctor --</option>
+                            <option th:each="doc : ${doctors}" 
+                                    th:value="${doc.id}" 
+                                    th:text="${'Dr. ' + doc.firstName + ' ' + doc.lastName + ' (' + doc.specialization + ')'}"
+                                    th:selected="${schedule.doctor != null and schedule.doctor.id == doc.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Date:</label>
+                        <input type="date" th:field="*{availableDate}" 
+                               th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Start Time:</label>
+                        <input type="time" th:field="*{startTime}" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>End Time:</label>
+                        <input type="time" th:field="*{endTime}" required />
+                    </div>
+
+                    <div class="form-group full-width">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="availableCheck" th:field="*{available}" />
+                            <label for="availableCheck">Available for Booking</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" th:text="${schedule.id != null ? 'Update Schedule' : 'Save Schedule'}">Save Schedule</button>
+                    <a th:if="${schedule.id != null}" th:href="@{/admin/schedules}" class="btn btn-secondary">Cancel Edit</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Schedule List -->
+        <h3>Schedule List</h3>
+        <div class="table-responsive">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">ID</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th style="width: 170px;">Status</th>
+                        <th style="width: 140px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(schedules)}">
+                        <td colspan="6" style="text-align: center; color: #64748b; padding: 25px;">No schedules found.</td>
+                    </tr>
+                    <tr th:each="sch : ${schedules}">
+                        <td th:text="${sch.id}">1</td>
+                        <td th:text="${sch.doctor != null ? 'Dr. ' + sch.doctor.firstName + ' ' + sch.doctor.lastName : 'N/A'}" style="font-weight: 500;">Dr. John Doe</td>
+                        <td th:text="${sch.availableDate}">2026-09-20</td>
+                        <td th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</td>
+                        <td>
+                            <span th:class="${sch.available ? 'badge-status status-available' : 'badge-status status-unavailable'}"
+                                  th:text="${sch.available ? 'Available' : 'Booked / Unavailable'}">Available</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/schedules/edit/{id}(id=${sch.id})}" class="btn-edit">Edit</a>
+                            <span class="divider" style="margin: 0 4px;">|</span>
+                            <a th:href="@{/admin/schedules/delete/{id}(id=${sch.id})}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this schedule slot?')">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

@@ -26,9 +26,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/register", "/login", "/css/**", "/js/**").permitAll()
+                // 1. Олон нийт нэвтрэхгүйгээр чөлөөтэй үзэх замууд (/doctors/** нэмэгдсэн)
+                .requestMatchers("/", "/doctors/**", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+
+                // 2. Зөвхөн Админ хандах замууд
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/customer/**").hasRole("CUSTOMER")
+
+                // 3. Үйлчлүүлэгч цаг захиалах, харах замууд
+                .requestMatchers("/customer/**", "/my-appointments", "/appointments/**").hasRole("CUSTOMER")
+
+                // 4. Бусад хүсэлт заавал нэвтэрсэн байх
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

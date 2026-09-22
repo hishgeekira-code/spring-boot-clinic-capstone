@@ -1,10 +1,11 @@
 package mn.icode.service;
 
-import mn.icode.model.Schedule;
-import mn.icode.repository.ScheduleRepository;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import mn.icode.model.Schedule;
+import mn.icode.repository.ScheduleRepository;
 
 @Service
 public class ScheduleService {
