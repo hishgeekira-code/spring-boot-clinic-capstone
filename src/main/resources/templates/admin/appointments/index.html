@@ -4,18 +4,19 @@
 <meta charset="UTF-8">
 <title>Admin - Appointment Management</title>
 
-<!-- JS-ni request mate Spring Security CSRF meta tags -->
+<!-- Spring Security CSRF мета тагууд (JS-д зайлшгүй шаардлагатай) -->
 <meta name="_csrf" th:content="${_csrf?.token}"/>
 <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
 
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" th:href="@{/css/appointment-index.css}">
+<script th:src="@{/js/appointments.js}" defer></script>
 </head>
 <body>
 	<div class="container">
 		<h2>Admin - Appointment Dashboard</h2>
 
-		<!-- Navigation bar -->
+		<!-- Навигацийн мөр -->
 		<nav class="main-navbar">
 			<div class="nav-group">
 				<a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a>
@@ -33,7 +34,7 @@
 		</nav>
 		<hr />
 
-		<!-- Alert box -->
+		<!-- Мэдэгдэл харуулах хайрцаг -->
 		<div id="alert-box"
 			style="display: none; padding: 12px 16px; margin-bottom: 20px; font-weight: 500; border-radius: 6px;"></div>
 
@@ -42,7 +43,7 @@
 			<p>No appointments found in the system.</p>
 		</div>
 
-		<!-- Table section -->
+		<!-- Хүснэгтийн хэсэг -->
 		<div class="appointments-card" th:if="${!#lists.isEmpty(appointments)}">
 			<table class="appointment-table">
 				<thead>
@@ -63,7 +64,7 @@
 							style="font-weight: 500;">John Doe</td>
 						<td th:text="${app.doctor != null ? 'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName : 'N/A'}">Dr. Sarah Jenkins</td>
 						
-						<!-- 24-hour format (HH:mm) -->
+						<!-- 24 цагийн форматаар (HH:mm) -->
 						<td class="time-slot" th:if="${app.schedule != null}"
 							th:text="${app.schedule.availableDate + ' (' + #temporals.format(app.schedule.startTime, 'HH:mm') + ' - ' + #temporals.format(app.schedule.endTime, 'HH:mm') + ')'}">
 							2026-09-23 (09:00 - 10:00)
@@ -104,69 +105,5 @@
 			</table>
 		</div>
 	</div>
-
-	<!-- Turant color badalva mate no Script -->
-	<script>
-	function changeAppointmentStatus(appointmentId, newStatus) {
-		const badge = document.getElementById('status-label-' + appointmentId);
-		const alertBox = document.getElementById('alert-box');
-
-		if (badge) {
-			badge.textContent = newStatus;
-			if (newStatus === 'CONFIRMED') {
-				badge.style.backgroundColor = '#e0e7ff';
-				badge.style.color = '#4338ca';
-			} else if (newStatus === 'COMPLETED') {
-				badge.style.backgroundColor = '#dcfce7';
-				badge.style.color = '#15803d';
-			} else if (newStatus === 'CANCELLED') {
-				badge.style.backgroundColor = '#fee2e2';
-				badge.style.color = '#b91c1c';
-			} else {
-				badge.style.backgroundColor = '#fef3c7';
-				badge.style.color = '#b45309';
-			}
-		}
-
-		const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-		const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
-
-		const headers = {
-			'Content-Type': 'application/x-www-form-urlencoded'
-		};
-		if (token && header) {
-			headers[header] = token;
-		}
-
-		fetch('/admin/appointments/' + appointmentId + '/status', {
-			method: 'PUT',
-			headers: headers,
-			body: new URLSearchParams({ status: newStatus })
-		})
-		.then(response => {
-			if (!response.ok) {
-				return fetch('/admin/appointments/update-status', {
-					method: 'POST',
-					headers: headers,
-					body: new URLSearchParams({ appointmentId: appointmentId, status: newStatus })
-				});
-			}
-		})
-		.then(() => {
-			if (alertBox) {
-				alertBox.textContent = 'Status successfully updated to ' + newStatus;
-				alertBox.style.backgroundColor = '#dcfce7';
-				alertBox.style.color = '#15803d';
-				alertBox.style.display = 'block';
-				setTimeout(() => {
-					alertBox.style.display = 'none';
-				}, 2500);
-			}
-		})
-		.catch(err => {
-			console.error('Update failed:', err);
-		});
-	}
-	</script>
 </body>
 </html>
