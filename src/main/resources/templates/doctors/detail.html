@@ -1,93 +1,99 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>Doctor Profile - Clinic Appointment System</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/doctor-detail.css}">
+<meta charset="UTF-8">
+<title>Doctor Profile - Clinic Appointment System</title>
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/doctor-detail.css}">
 </head>
 <body>
-    <div class="container">
-        <!-- Загварлаг Навигацийн мөр -->
-        <nav class="main-navbar">
-            <div class="nav-left">
-                <a th:href="@{/doctors}" class="nav-link nav-link-back">← Back to Doctors List</a>
-            </div>
+	<div class="container">
+		<!-- Навигацийн мөр -->
+		<nav class="main-navbar">
+			<div class="nav-group">
+				<a th:href="@{/doctors}" class="nav-item">← Back to Doctors List</a>
 
-            <div class="nav-right">
-                <!-- Нэвтэрсэн үед харагдах хэсэг -->
-                <span id="auth-logged-in" style="display: none; align-items: center; gap: 10px;">
-                    <a th:href="@{/my-appointments}" class="nav-link">My Appointments</a>
-                    <a th:href="@{/admin/dashboard}" id="admin-link" class="nav-link" style="display: none;">Admin Dashboard</a>
-                    <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
-                        <button type="submit" class="nav-btn-logout">Logout</button>
-                    </form>
-                </span>
+				<!-- Нэвтэрсэн хэрэглэгчид харагдах холбоосууд -->
+				<span sec:authorize="isAuthenticated()"
+					style="display: inline-flex; align-items: center; gap: 8px;">
+					<a th:href="@{/my-appointments}" class="nav-item">My Appointments</a> 
+					<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="nav-item">Admin Dashboard</a>
+				</span>
+			</div>
 
-                <!-- Зочин үед харагдах хэсэг -->
-                <span id="auth-guest" style="display: flex; align-items: center; gap: 8px;">
-                    <a th:href="@{/login}" class="nav-btn nav-btn-login">Login</a>
-                    <a th:href="@{/register}" class="nav-btn nav-btn-register">Register</a>
-                </span>
-            </div>
-        </nav>
+			<div class="nav-group">
+				<!-- Нэвтэрсэн үед харагдах Logout товч -->
+				<div sec:authorize="isAuthenticated()">
+					<form th:action="@{/logout}" method="post" style="margin: 0;">
+						<button type="submit" class="nav-btn-logout">Logout</button>
+					</form>
+				</div>
 
-        <!-- Эмчийн дэлгэрэнгүй хэсэг -->
-        <div class="doctor-profile-card">
-            <h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. Michael Brown</h2>
-            <p><strong>Specialization:</strong> <span th:text="${doctor.specialization}">Neurologist</span></p>
-            <p><strong>Department:</strong> <span th:text="${doctor.department != null ? doctor.department.name : 'N/A'}">Neurology</span></p>
-            <p th:if="${doctor.bio != null and !#strings.isEmpty(doctor.bio)}">
-                <strong>Bio:</strong> <span th:text="${doctor.bio}">Specialist in nervous system disorders...</span>
-            </p>
-        </div>
+				<!-- Зочин үед харагдах Login / Register товчнууд -->
+				<div sec:authorize="isAnonymous()"
+					style="display: flex; align-items: center; gap: 8px;">
+					<a th:href="@{/login}" class="nav-item">Login</a> 
+					<a th:href="@{/register}" class="btn btn-primary" style="padding: 7px 14px; font-size: 0.88rem;">Register</a>
+				</div>
+			</div>
+		</nav>
+		<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0 25px 0;" />
 
-        <h3>Available Schedules</h3>
-        <div th:if="${#lists.isEmpty(schedules)}" style="padding: 20px 0; color: #64748b;">
-            <p>No available schedules for this doctor at the moment.</p>
-        </div>
+		<!-- Эмчийн дэлгэрэнгүй мэдээллийн карт -->
+		<div class="doctor-profile-card">
+			<h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. Michael Brown</h2>
+			<div class="profile-info-grid">
+				<p>
+					<strong>Specialization:</strong> <span th:text="${doctor.specialization}">Neurologist</span>
+				</p>
+				<p>
+					<strong>Department:</strong> <span th:text="${doctor.department != null ? doctor.department.name : 'N/A'}">Neurology</span>
+				</p>
+				<p th:if="${doctor.bio != null and !#strings.isEmpty(doctor.bio)}" class="profile-bio">
+					<strong>Bio:</strong> <span th:text="${doctor.bio}">Specialist in nervous system disorders...</span>
+				</p>
+			</div>
+		</div>
 
-        <div class="table-responsive" th:if="${!#lists.isEmpty(schedules)}">
-            <table class="schedule-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="sch : ${schedules}">
-                        <td th:text="${sch.availableDate}" style="font-weight: 500;">2026-09-25</td>
-                        <td th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</td>
-                        <td>
-                            <a th:href="@{/appointments/book(scheduleId=${sch.id})}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">
-                                Book Appointment
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+		<!-- Цагийн хуваарийн жагсаалт -->
+		<h3>Doctor Schedules</h3>
+		<div th:if="${#lists.isEmpty(schedules)}"
+			style="padding: 24px; color: #64748b; background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; margin-top: 15px; text-align: center;">
+			<p style="margin: 0;">No schedules found for this doctor at the moment.</p>
+		</div>
 
-    <!-- Навигацийн төлөв шалгах скрипт -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var loggedIn = /*[[${isLoggedIn}]]*/ false;
-        var admin = /*[[${isAdmin}]]*/ false;
-
-        if (loggedIn === true) {
-            document.getElementById('auth-logged-in').style.display = 'inline-flex';
-            document.getElementById('auth-guest').style.display = 'none';
-            if (admin === true) {
-                document.getElementById('admin-link').style.display = 'inline';
-            }
-        } else {
-            document.getElementById('auth-logged-in').style.display = 'none';
-            document.getElementById('auth-guest').style.display = 'inline-flex';
-        }
-        /*]]>*/
-    </script>
+		<div class="table-responsive" th:if="${!#lists.isEmpty(schedules)}" style="margin-top: 15px;">
+			<table class="schedule-table">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Time Slot</th>
+						<th style="width: 180px; text-align: center;">Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="sch : ${schedules}">
+						<td th:text="${sch.availableDate}" style="font-weight: 500;">2026-09-25</td>
+						<td th:text="${sch.startTime + ' - ' + sch.endTime}" style="color: #475569;">09:00 - 10:00</td>
+						<td style="text-align: center;">
+							<!-- 1. Сул хуваарь бол /appointments/book/{id} хэлбэрээр шилжинэ -->
+							<a th:if="${sch.isAvailable}"
+							   th:href="@{/appointments/book/{id}(id=${sch.id})}"
+							   class="btn btn-primary"
+							   style="display: inline-block; padding: 7px 14px; font-size: 0.85rem; text-decoration: none; border-radius: 6px;">
+								Book Appointment
+							</a> 
+							<!-- 2. Захиалагдсан бол 'Already Booked' саарал badge харагдана -->
+							<span th:unless="${sch.isAvailable}"
+								  style="display: inline-block; padding: 6px 12px; font-size: 0.85rem; font-weight: 500; color: #64748b; background-color: #f1f5f9; border-radius: 6px; border: 1px solid #cbd5e1; user-select: none;">
+								Already Booked 
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </body>
 </html>

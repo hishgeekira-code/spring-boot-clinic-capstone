@@ -137,4 +137,8 @@ public class AppointmentService {
 		return appointmentRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Appointment not found with id: " + id));
 	}
+	
+	public List<Appointment> getAppointmentsByStatus(AppointmentStatus status) {
+	    return appointmentRepository.findByStatus(status);
+	}
 }

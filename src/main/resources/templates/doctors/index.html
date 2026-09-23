@@ -1,158 +1,167 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Doctors - Clinic Appointment System</title>
-    <!-- 1. Нийтлэг суурь CSS -->
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <!-- 2. Энэ хуудасны тусгай CSS -->
-    <link rel="stylesheet" th:href="@{/css/doctor-list.css}">
+<meta charset="UTF-8">
+<title>Doctors - Clinic Appointment System</title>
+<!-- 1. Нийтлэг суурь CSS -->
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<!-- 2. Энэ хуудасны тусгай CSS -->
+<link rel="stylesheet" th:href="@{/css/doctor-list.css}">
 </head>
 <body>
 
-    <div class="container">
-        <h2>Doctors List</h2>
-        
-        <!-- Загварлаг Навигацийн мөр -->
-        <nav class="main-navbar">
-            <div class="nav-group">
-                <a th:href="@{/doctors}" class="nav-item active">Doctors</a>
-                
-                <!-- Зөвхөн нэвтэрсэн хэрэглэгчид харагдах цэсүүд -->
-                <span id="auth-logged-in-links" style="display: none; align-items: center; gap: 8px;">
-                    <a th:href="@{/my-appointments}" class="nav-item">My Appointments</a>
-                    <a th:href="@{/admin/dashboard}" id="admin-link" class="nav-item" style="display: none;">Admin Dashboard</a>
-                </span>
-            </div>
+	<div class="container">
+		<h2>Doctors List</h2>
 
-            <div class="nav-group">
-                <!-- Нэвтэрсэн үед гарах Logout товч -->
-                <span id="auth-logged-in-btn" style="display: none;">
-                    <form th:action="@{/logout}" method="post" style="margin: 0;">
-                        <button type="submit" class="nav-btn-logout">Logout</button>
-                    </form>
-                </span>
+		<!-- Загварлаг Навигацийн мөр -->
+		<nav class="main-navbar">
+			<div class="nav-group">
+				<a th:href="@{/doctors}" class="nav-item active">Doctors</a>
 
-                <!-- Нэвтрээгүй үед гарах Login / Register товчлуурууд -->
-                <span id="auth-guest" style="display: flex; align-items: center; gap: 8px;">
-                    <a th:href="@{/login}" class="nav-item">Login</a>
-                    <a th:href="@{/register}" class="btn btn-primary" style="padding: 7px 14px; font-size: 0.88rem;">Register</a>
-                </span>
-            </div>
-        </nav>
-        
-        <hr />
+				<!-- Зөвхөн нэвтэрсэн хэрэглэгчид харагдах цэсүүд -->
+				<span id="auth-logged-in-links"
+					style="display: none; align-items: center; gap: 8px;"> <a
+					th:href="@{/my-appointments}" class="nav-item">My Appointments</a>
+					<a th:href="@{/admin/dashboard}" id="admin-link" class="nav-item"
+					style="display: none;">Admin Dashboard</a>
+				</span>
+			</div>
 
-        <!-- Хайлт ба шүүлтүүрийн форм -->
-        <h3>Search & Filter Doctors</h3>
-        <form th:action="@{/doctors}" method="get" class="filter-form">
-            <div>
-                <label>Name:</label>
-                <input type="text" name="name" th:value="${name}" placeholder="Search doctor name..." />
-            </div>
+			<div class="nav-group">
+				<!-- Нэвтэрсэн үед гарах Logout товч -->
+				<span id="auth-logged-in-btn" style="display: none;">
+					<form th:action="@{/logout}" method="post" style="margin: 0;">
+						<button type="submit" class="nav-btn-logout">Logout</button>
+					</form>
+				</span>
 
-            <div>
-                <label>Department:</label>
-                <select name="departmentId">
-                    <option value="">-- All Departments --</option>
-                    <option th:each="dept : ${departments}" th:value="${dept.id}"
-                            th:text="${dept.name}" th:selected="${dept.id == departmentId}">
-                    </option>
-                </select>
-            </div>
+				<!-- Нэвтрээгүй үед гарах Login / Register товчлуурууд -->
+				<span id="auth-guest"
+					style="display: flex; align-items: center; gap: 8px;"> <a
+					th:href="@{/login}" class="nav-item">Login</a> <a
+					th:href="@{/register}" class="btn btn-primary"
+					style="padding: 7px 14px; font-size: 0.88rem;">Register</a>
+				</span>
+			</div>
+		</nav>
 
-            <div>
-                <label>Specialization:</label>
-                <input type="text" name="specialization" th:value="${specialization}" placeholder="e.g. Cardiologist" />
-            </div>
+		<hr />
 
-            <button type="submit" class="btn btn-primary">Search</button>
-            <a th:href="@{/doctors}" class="btn btn-secondary">Reset</a>
-        </form>
+		<!-- Хайлт ба шүүлтүүрийн форм -->
+		<h3>Search & Filter Doctors</h3>
+		<form th:action="@{/doctors}" method="get" class="filter-form">
+			<div class="form-group">
+				<label for="name">Name:</label> <input type="text" id="name"
+					name="name" th:value="${param.name}"
+					placeholder="Search doctor name..." />
+			</div>
 
-        <!-- Эмч нарын жагсаалт -->
-        <div th:if="${#lists.isEmpty(doctors)}" style="padding: 20px; text-align: center; color: #64748b;">
-            <p>No doctors found matching your criteria.</p>
-        </div>
+			<div class="form-group">
+				<label for="department">Department:</label> <select id="department"
+					name="departmentId">
+					<option value="">-- All Departments --</option>
+					<option th:each="dept : ${departments}" th:value="${dept.id}"
+						th:text="${dept.name}"
+						th:selected="${param.departmentId != null and param.departmentId[0] == dept.id.toString()}">
+					</option>
+				</select>
+			</div>
 
-        <div class="table-responsive" th:if="${!#lists.isEmpty(doctors)}">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Specialization</th>
-                        <th>Department</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="doc : ${doctors}">
-                        <td th:text="${doc.id}">1</td>
-                        <td th:text="${'Dr. ' + doc.firstName + ' ' + doc.lastName}" style="font-weight: 500;">Dr. John Doe</td>
-                        <td th:text="${doc.specialization}">Cardiologist</td>
-                        <td th:text="${doc.department != null ? doc.department.name : 'N/A'}">Cardiology</td>
-                        <td>
-                            <span th:class="${doc.active ? 'badge badge-active' : 'badge badge-inactive'}"
-                                  th:text="${doc.active ? 'Active' : 'Inactive'}">Active</span>
-                        </td>
-                        <td>
-                            <a th:if="${doc.active}" class="action-link"
-                               th:href="@{/doctors/{id}(id=${doc.id})}">View Profile & Schedules</a>
-                            <span th:unless="${doc.active}" style="color: #94a3b8;">Unavailable</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+			<div class="form-group">
+				<label for="specialization">Specialization:</label> <input
+					type="text" id="specialization" name="specialization"
+					th:value="${param.specialization}" placeholder="e.g. Cardiologist" />
+			</div>
 
-        <!-- Pagination Controls -->
-        <div class="pagination" th:if="${totalPages > 1}">
-            <!-- Өмнөх хуудас -->
-            <a th:if="${currentPage > 0}"
-               th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${currentPage - 1})}">
-                &laquo; Previous
-            </a>
-            <span th:unless="${currentPage > 0}" class="disabled">&laquo; Previous</span>
+			<!-- Search болон Reset товчийг хамтад нь нэг бүлэг болгов -->
+			<div class="filter-actions">
+				<button type="submit" class="btn btn-primary">Search</button>
+				<a th:href="@{/doctors}" class="btn-reset">Reset</a>
+			</div>
+		</form>
 
-            <!-- Дугаарууд -->
-            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:if="${i != currentPage}"
-                   th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${i})}"
-                   th:text="${i + 1}">1</a>
-                <span th:if="${i == currentPage}" class="current" th:text="${i + 1}">1</span>
-            </span>
+		<!-- Эмч нарын жагсаалт -->
+		<div th:if="${#lists.isEmpty(doctors)}"
+			style="padding: 20px; text-align: center; color: #64748b;">
+			<p>No doctors found matching your criteria.</p>
+		</div>
 
-            <!-- Дараах хуудас -->
-            <a th:if="${currentPage < totalPages - 1}"
-               th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${currentPage + 1})}">
-                Next &raquo;
-            </a>
-            <span th:unless="${currentPage < totalPages - 1}" class="disabled">Next &raquo;</span>
-        </div>
-    </div>
+		<div class="table-responsive" th:if="${!#lists.isEmpty(doctors)}">
+			<table>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Specialization</th>
+						<th>Department</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="doc : ${doctors}">
+						<td th:text="${doc.id}">1</td>
+						<td th:text="${'Dr. ' + doc.firstName + ' ' + doc.lastName}"
+							style="font-weight: 500;">Dr. John Doe</td>
+						<td th:text="${doc.specialization}">Cardiologist</td>
+						<td
+							th:text="${doc.department != null ? doc.department.name : 'N/A'}">Cardiology</td>
+						<td><span
+							th:class="${doc.active ? 'badge badge-active' : 'badge badge-inactive'}"
+							th:text="${doc.active ? 'Active' : 'Inactive'}">Active</span></td>
+						<td><a th:if="${doc.active}" class="action-link"
+							th:href="@{/doctors/{id}(id=${doc.id})}">View Profile &
+								Schedules</a> <span th:unless="${doc.active}"
+							style="color: #94a3b8;">Unavailable</span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 
-    <!-- Навигацийн төлөв шалгах скрипт -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var loggedIn = /*[[${isLoggedIn}]]*/ false;
-        var admin = /*[[${isAdmin}]]*/ false;
+		<!-- Pagination Controls -->
+		<div class="pagination" th:if="${totalPages > 1}">
+			<!-- Өмнөх хуудас -->
+			<a th:if="${currentPage > 0}"
+				th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${currentPage - 1})}">
+				&laquo; Previous </a> <span th:unless="${currentPage > 0}"
+				class="disabled">&laquo; Previous</span>
 
-        if (loggedIn === true) {
-            document.getElementById('auth-logged-in-links').style.display = 'inline-flex';
-            document.getElementById('auth-logged-in-btn').style.display = 'inline-block';
-            document.getElementById('auth-guest').style.display = 'none';
+			<!-- Дугаарууд -->
+			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}"> <a
+				th:if="${i != currentPage}"
+				th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${i})}"
+				th:text="${i + 1}">1</a> <span th:if="${i == currentPage}"
+				class="current" th:text="${i + 1}">1</span>
+			</span>
 
-            if (admin === true) {
-                document.getElementById('admin-link').style.display = 'inline-block';
-            }
-        } else {
-            document.getElementById('auth-logged-in-links').style.display = 'none';
-            document.getElementById('auth-logged-in-btn').style.display = 'none';
-            document.getElementById('auth-guest').style.display = 'flex';
-        }
-        /*]]>*/
-    </script>
+			<!-- Дараах хуудас -->
+			<a th:if="${currentPage < totalPages - 1}"
+				th:href="@{/doctors(name=${name}, departmentId=${departmentId}, specialization=${specialization}, page=${currentPage + 1})}">
+				Next &raquo; </a> <span th:unless="${currentPage < totalPages - 1}"
+				class="disabled">Next &raquo;</span>
+		</div>
+	</div>
+
+	<!-- Навигацийн төлөв шалгах скрипт -->
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var loggedIn = /*[[${isLoggedIn}]]*/false;
+		var admin = /*[[${isAdmin}]]*/false;
+
+		if (loggedIn === true) {
+			document.getElementById('auth-logged-in-links').style.display = 'inline-flex';
+			document.getElementById('auth-logged-in-btn').style.display = 'inline-block';
+			document.getElementById('auth-guest').style.display = 'none';
+
+			if (admin === true) {
+				document.getElementById('admin-link').style.display = 'inline-block';
+			}
+		} else {
+			document.getElementById('auth-logged-in-links').style.display = 'none';
+			document.getElementById('auth-logged-in-btn').style.display = 'none';
+			document.getElementById('auth-guest').style.display = 'flex';
+		}
+		/*]]>*/
+	</script>
 </body>
 </html>

@@ -1,22 +1,70 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Book Appointment - Clinic</title>
-    <!-- Нийтлэг суурь CSS болон Захиалгын хуудасны CSS -->
     <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor-detail.css}">
     <link rel="stylesheet" th:href="@{/css/appointment-book.css}">
+    <style>
+        .page-header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #475569;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            color: #1e293b;
+            background-color: #f1f5f9;
+        }
+    </style>
 </head>
 <body>
     <div class="container booking-card">
-        <h2>Confirm Appointment Booking</h2>
-        
-        <div class="nav-menu">
-            <a th:href="@{/doctors}">← Back to Doctors</a>
-        </div>
-        <hr/>
+        <!-- Цэвэрхэн нэгдсэн Навигацийн мөр -->
+        <nav class="page-header-nav">
+            <div class="nav-group">
+                <a th:href="@{/doctors/{id}(id=${schedule.doctor.id})}" class="btn-back">
+                    ← Back to Doctor Profile
+                </a>
+            </div>
 
-        <!-- Хуваарийн мэдээлэл -->
+            <div class="nav-group" style="display: flex; align-items: center; gap: 12px;">
+                <span sec:authorize="isAuthenticated()" style="display: inline-flex; align-items: center; gap: 12px;">
+                    <a th:href="@{/my-appointments}" class="nav-item" style="text-decoration: none; color: #475569; font-weight: 500;">
+                        My Appointments
+                    </a>
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <button type="submit" class="nav-btn-logout" 
+                                style="border: 1px solid #fee2e2; background-color: #fef2f2; color: #ef4444; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 0.88rem; font-weight: 500;">
+                            Logout
+                        </button>
+                    </form>
+                </span>
+            </div>
+        </nav>
+
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 25px;" />
+
+        <h2 style="font-size: 1.6rem; color: #0f172a; margin-bottom: 20px; font-weight: 700;">
+            Confirm Appointment Booking
+        </h2>
+
+        <!-- Хуваарийн мэдээллийн карт -->
         <div class="booking-summary-card">
             <h3>Appointment Details</h3>
             <div class="summary-grid">
@@ -40,15 +88,21 @@
         </div>
 
         <!-- Захиалга баталгаажуулах форм -->
-        <form th:action="@{/appointments/book}" method="post">
+        <form th:action="@{/appointments/book}" method="post" style="margin-top: 24px;">
             <input type="hidden" name="scheduleId" th:value="${schedule.id}" />
             
             <div class="form-group">
-                <label for="reason">Reason for Visit (Optional):</label>
-                <textarea id="reason" name="reason" rows="4" placeholder="Describe your symptoms or reason for the visit..."></textarea>
+                <label for="reason" style="display: block; font-weight: 600; margin-bottom: 8px; color: #334155;">
+                    Reason for Visit (Optional):
+                </label>
+                <textarea id="reason" name="reason" rows="4" 
+                          placeholder="Describe your symptoms or reason for the visit..."
+                          style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-family: inherit; font-size: 0.95rem; resize: vertical; box-sizing: border-box;"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-book">Confirm & Book Appointment</button>
+            <button type="submit" class="btn btn-primary btn-book" style="margin-top: 16px; padding: 10px 20px; font-size: 0.95rem; font-weight: 600; border-radius: 6px; cursor: pointer;">
+                Confirm & Book Appointment
+            </button>
         </form>
     </div>
 </body>

@@ -3,7 +3,7 @@ package mn.icode.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication; // <-- Энийг import хийнэ
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,12 +41,12 @@ public class PublicDoctorController {
                               @RequestParam(required = false) String specialization,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "5") int size,
-                              Authentication authentication, // <-- ЭНД Authentication authentication НЭМЭЭРЭЙ
+                              Authentication authentication,
                               Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Doctor> doctorPage = doctorService.searchDoctorsPaginated(name, departmentId, specialization, pageable);
 
-        // Хэрэглэгч бодитоор нэвтэрсэн эсэхийг Controller дээр шалгах:
+        // Хэрэглэгч нэвтэрсэн эсэхийг шалгах:
         boolean isLoggedIn = authentication != null && authentication.isAuthenticated()
                              && !authentication.getName().equals("anonymousUser");
 
@@ -69,7 +69,9 @@ public class PublicDoctorController {
     }
 
     @GetMapping("/doctors/{id}")
-    public String doctorDetail(@PathVariable Long id, Model model) {
+    public String doctorDetail(@PathVariable Long id, 
+                               Authentication authentication, 
+                               Model model) {
         try {
             Doctor doctor = doctorService.getDoctorById(id);
             if (!doctor.isActive()) {
@@ -77,6 +79,17 @@ public class PublicDoctorController {
             }
             model.addAttribute("doctor", doctor);
             model.addAttribute("schedules", scheduleService.getSchedulesByDoctorId(id));
+
+            // Нэвтэрсэн төлөвийг шалгах хэсэг:
+            boolean isLoggedIn = authentication != null && authentication.isAuthenticated()
+                                 && !authentication.getName().equals("anonymousUser");
+
+            boolean isAdmin = isLoggedIn && authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            model.addAttribute("isLoggedIn", isLoggedIn);
+            model.addAttribute("isAdmin", isAdmin);
+
             return "doctors/detail";
         } catch (Exception e) {
             return "redirect:/doctors";

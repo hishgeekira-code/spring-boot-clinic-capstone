@@ -1,13 +1,11 @@
 package mn.icode.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import mn.icode.model.AppointmentStatus;
 import mn.icode.service.AppointmentService;
@@ -16,29 +14,37 @@ import mn.icode.service.AppointmentService;
 @RequestMapping("/admin/appointments")
 public class AdminAppointmentController {
 
-	private final AppointmentService appointmentService;
+    private final AppointmentService appointmentService;
 
-	public AdminAppointmentController(AppointmentService appointmentService) {
-		this.appointmentService = appointmentService;
-	}
+    public AdminAppointmentController(AppointmentService appointmentService) {
+        this.appointmentService = appointmentService;
+    }
 
-	@GetMapping
-	public String listAppointments(Model model) {
-		model.addAttribute("appointments", appointmentService.getAllAppointments());
-		model.addAttribute("statuses", AppointmentStatus.values());
-		return "admin/appointments/index";
-	}
+    @GetMapping
+    public String listAppointments(@RequestParam(value = "status", required = false) AppointmentStatus selectedStatus,
+                                   Authentication authentication,
+                                   Model model) {
+        if (selectedStatus != null) {
+            try {
+                model.addAttribute("appointments", appointmentService.getAppointmentsByStatus(selectedStatus));
+            } catch (Exception e) {
+                model.addAttribute("appointments", appointmentService.getAllAppointments());
+            }
+        } else {
+            model.addAttribute("appointments", appointmentService.getAllAppointments());
+        }
 
-	@PostMapping("/{id}/status")
-	public String updateStatus(@PathVariable Long id,
-							   @RequestParam("status") AppointmentStatus status,
-							   RedirectAttributes redirectAttributes) {
-		try {
-			appointmentService.updateAppointmentStatus(id, status);
-			redirectAttributes.addFlashAttribute("successMessage", "Appointment #" + id + " status changed to " + status + ".");
-		} catch (IllegalStateException e) {
-			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-		}
-		return "redirect:/admin/appointments";
-	}
+        model.addAttribute("statuses", AppointmentStatus.values());
+        model.addAttribute("selectedStatus", selectedStatus);
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            model.addAttribute("isLoggedIn", true);
+            model.addAttribute("username", authentication.getName());
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            model.addAttribute("isAdmin", isAdmin);
+        }
+
+        return "admin/appointments/index";
+    }
 }
