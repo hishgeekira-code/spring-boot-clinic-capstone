@@ -1,11 +1,15 @@
 package mn.icode.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import mn.icode.model.AppointmentStatus;
 import mn.icode.service.AppointmentService;
@@ -46,5 +50,21 @@ public class AdminAppointmentController {
         }
 
         return "admin/appointments/index";
+    }
+    
+    @PostMapping("/update-status")
+    @ResponseBody
+    public ResponseEntity<?> updateStatus(@RequestParam("appointmentId") Long appointmentId,
+                                          @RequestParam("status") String status) {
+        try {
+            AppointmentStatus appointmentStatus = AppointmentStatus.valueOf(status.trim().toUpperCase());
+            appointmentService.updateAppointmentStatus(appointmentId, appointmentStatus);
+            // Дахин хуудас татахгүй, 200 OK буцаана!
+            return ResponseEntity.ok().body("{\"success\": true}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
 }

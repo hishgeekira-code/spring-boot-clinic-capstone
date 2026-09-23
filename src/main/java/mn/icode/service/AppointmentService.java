@@ -64,32 +64,22 @@ public class AppointmentService {
 
 	@Transactional
 	public Appointment updateAppointmentStatus(Long appointmentId, AppointmentStatus newStatus) {
-		Appointment appointment = appointmentRepository.findById(appointmentId)
-				.orElseThrow(() -> new RuntimeException("Appointment not found with id: " + appointmentId));
+	    Appointment appointment = appointmentRepository.findById(appointmentId)
+	            .orElseThrow(() -> new IllegalArgumentException("Appointment not found: " + appointmentId));
 
-		AppointmentStatus oldStatus = appointment.getStatus();
+	    appointment.setStatus(newStatus);
 
-		// COMPLETE bolson zahialga tsutsalj bolohgvi
-		if (oldStatus == AppointmentStatus.COMPLETED && newStatus == AppointmentStatus.CANCELLED) {
-			throw new IllegalStateException("Cannot cancel a completed appointment.");
-		}
+	    // Хэрэв цуцлагдвал хуваарийг суллах
+	    if (appointment.getSchedule() != null) {
+	        if (newStatus == AppointmentStatus.CANCELLED) {
+	            appointment.getSchedule().setAvailable(true);
+	        } else {
+	            appointment.getSchedule().setAvailable(false);
+	        }
+	    }
 
-		appointment.setStatus(newStatus);
-
-		// herew tsutslagdwal tsagiin huwaariig butsaaj sullana
-		Schedule schedule = appointment.getSchedule();
-		if (schedule != null) {
-			if (newStatus == AppointmentStatus.CANCELLED) {
-				schedule.setAvailable(true);
-				scheduleRepository.save(schedule);
-			} else if (oldStatus == AppointmentStatus.CANCELLED && newStatus != AppointmentStatus.CANCELLED) {
-				// Herew tsutslagdsan baisniig butsaaj idewhjvvlwel huwaariig haana
-				schedule.setAvailable(false);
-				scheduleRepository.save(schedule);
-			}
-		}
-
-		return appointmentRepository.save(appointment);
+	    // Заавал saveAndFlush хийж шууд бааз руу UPDATE бичүүлнэ
+	    return appointmentRepository.saveAndFlush(appointment);
 	}
 
 	@Transactional
