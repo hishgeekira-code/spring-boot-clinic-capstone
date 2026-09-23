@@ -36,4 +36,8 @@ public class ScheduleService {
     public List<Schedule> getSchedulesByDoctorId(Long doctorId) {
         return scheduleRepository.findByDoctorId(doctorId);
     }
+    
+    public List<Schedule> getAvailableSchedulesByDoctorId(Long doctorId) {
+        return scheduleRepository.findByDoctorIdAndAvailableTrue(doctorId);
+    }
 }

@@ -19,79 +19,87 @@ import mn.icode.service.ScheduleService;
 @Controller
 public class CustomerAppointmentController {
 
-    private final AppointmentService appointmentService;
-    private final ScheduleService scheduleService;
-    private final UserRepository userRepository;
+	private final AppointmentService appointmentService;
+	private final ScheduleService scheduleService;
+	private final UserRepository userRepository;
 
-    public CustomerAppointmentController(AppointmentService appointmentService,
-                                         ScheduleService scheduleService,
-                                         UserRepository userRepository) {
-        this.appointmentService = appointmentService;
-        this.scheduleService = scheduleService;
-        this.userRepository = userRepository;
-    }
+	public CustomerAppointmentController(AppointmentService appointmentService, 
+	                                     ScheduleService scheduleService,
+	                                     UserRepository userRepository) {
+		this.appointmentService = appointmentService;
+		this.scheduleService = scheduleService;
+		this.userRepository = userRepository;
+	}
 
-    @GetMapping("/my-appointments")
-    public String myAppointments(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+	@GetMapping("/my-appointments")
+	public String myAppointments(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
-        model.addAttribute("appointments", appointmentService.getAppointmentsByPatient(user.getId()));
-        return "customer/my-appointments";
-    }
+		model.addAttribute("appointments", appointmentService.getAppointmentsByPatient(user.getId()));
+		return "customer/my-appointments";
+	}
 
-    @GetMapping("/appointments/book/{scheduleId}")
-    public String showBookingForm(@PathVariable Long scheduleId, Model model, RedirectAttributes redirectAttributes) {
-        try {
-            Schedule schedule = scheduleService.getScheduleById(scheduleId);
+	// templates/customer/book-appointment.html хуудсыг дуудах хэсэг
+	@GetMapping({ "/appointments/book", "/appointments/book/{scheduleId}" })
+	public String showBookingForm(@PathVariable(required = false) Long scheduleId,
+	                              @RequestParam(value = "scheduleId", required = false) Long paramScheduleId, 
+	                              Model model,
+	                              RedirectAttributes redirectAttributes) {
+		Long targetId = (scheduleId != null) ? scheduleId : paramScheduleId;
+		if (targetId == null) {
+			return "redirect:/doctors";
+		}
 
-            if (!schedule.isAvailable()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "This schedule is no longer available.");
-                return "redirect:/doctors";
-            }
+		try {
+			Schedule schedule = scheduleService.getScheduleById(targetId);
 
-            model.addAttribute("schedule", schedule);
-            return "customer/book-appointment";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Schedule not found.");
-            return "redirect:/doctors";
-        }
-    }
+			if (!schedule.isAvailable()) {
+				redirectAttributes.addFlashAttribute("errorMessage", "This schedule is no longer available.");
+				return "redirect:/doctors";
+			}
 
-    @PostMapping("/appointments/book")
-    public String bookAppointment(@AuthenticationPrincipal UserDetails userDetails,
-                                  @RequestParam Long scheduleId,
-                                  @RequestParam(required = false) String reason,
-                                  RedirectAttributes redirectAttributes) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+			model.addAttribute("schedule", schedule);
+			return "customer/book-appointment"; 
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Schedule not found: " + e.getMessage());
+			return "redirect:/doctors";
+		}
+	}
 
-        try {
-            appointmentService.bookAppointment(user.getId(), scheduleId, reason);
-            redirectAttributes.addFlashAttribute("successMessage", "Appointment booked successfully!");
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/doctors";
-        }
+	@PostMapping("/appointments/book")
+	public String bookAppointment(@AuthenticationPrincipal UserDetails userDetails, 
+	                              @RequestParam Long scheduleId,
+	                              @RequestParam(required = false) String reason, 
+	                              RedirectAttributes redirectAttributes) {
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
-        return "redirect:/my-appointments";
-    }
+		try {
+			appointmentService.bookAppointment(user.getId(), scheduleId, reason);
+			redirectAttributes.addFlashAttribute("successMessage", "Appointment booked successfully!");
+		} catch (IllegalStateException e) {
+			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+			return "redirect:/doctors";
+		}
 
-    @PostMapping("/appointments/cancel/{id}")
-    public String cancelAppointment(@PathVariable Long id,
-                                   @AuthenticationPrincipal UserDetails userDetails,
-                                   RedirectAttributes redirectAttributes) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+		return "redirect:/my-appointments";
+	}
 
-        try {
-            appointmentService.cancelAppointment(id, user.getId());
-            redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully.");
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        }
+	@PostMapping("/appointments/cancel/{id}")
+	public String cancelAppointment(@PathVariable Long id, 
+	                               @AuthenticationPrincipal UserDetails userDetails,
+	                               RedirectAttributes redirectAttributes) {
+		User user = userRepository.findByEmail(userDetails.getUsername())
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Засагдсан хэсэг: Буруу /customer/appointments руу биш шууд /my-appointments руу очно
-        return "redirect:/my-appointments";
-    }
+		try {
+			appointmentService.cancelAppointment(id, user.getId());
+			redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully.");
+		} catch (IllegalStateException e) {
+			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+		}
+
+		return "redirect:/my-appointments";
+	}
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Schedules - Admin</title>
-    <!-- Нийтлэг суурь CSS болон Хуваарийн тусгай CSS -->
+    <!-- Нийтлэг суурь CSS болон Хуваарийн CSS -->
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/schedule-management.css}">
 </head>
@@ -11,7 +11,7 @@
     <div class="container">
         <h2>Doctor Schedule Management</h2>
         
-        <!-- Загварлаг Навигацийн мөр -->
+        <!-- Админ навигацийн мөр -->
         <nav class="main-navbar">
             <div class="nav-group">
                 <a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a>
@@ -29,12 +29,12 @@
         </nav>
         <hr/>
 
-        <!-- Add / Edit Schedule Form -->
+        <!-- Хуваарь нэмэх / засах карт -->
         <div class="schedule-form-card">
             <h3 th:text="${schedule.id != null ? 'Edit Schedule (ID: ' + schedule.id + ')' : 'Add New Schedule'}">Add / Edit Schedule</h3>
             
             <form th:action="@{/admin/schedules/save}" th:object="${schedule}" method="post">
-                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" name="id" th:value="*{id}" />
                 
                 <div class="form-grid">
                     <div class="form-group full-width">
@@ -51,23 +51,39 @@
 
                     <div class="form-group full-width">
                         <label>Date:</label>
-                        <input type="date" th:field="*{availableDate}" 
-                               th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
+                        <!-- max="2099-12-31" ашиглан оныг 4 оронтой хэвээр хязгаарлана -->
+                        <input type="date" 
+                               id="availableDate"
+                               name="availableDate" 
+                               th:value="${schedule.availableDate != null ? #temporals.format(schedule.availableDate, 'yyyy-MM-dd') : ''}"
+                               th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" 
+                               max="2099-12-31"
+                               required />
                     </div>
 
                     <div class="form-group">
                         <label>Start Time:</label>
-                        <input type="time" th:field="*{startTime}" required />
+                        <input type="time" 
+                               id="startTime"
+                               name="startTime" 
+                               step="60"
+                               th:value="${schedule.startTime != null ? #temporals.format(schedule.startTime, 'HH:mm') : ''}" 
+                               required />
                     </div>
 
                     <div class="form-group">
                         <label>End Time:</label>
-                        <input type="time" th:field="*{endTime}" required />
+                        <input type="time" 
+                               id="endTime"
+                               name="endTime" 
+                               step="60"
+                               th:value="${schedule.endTime != null ? #temporals.format(schedule.endTime, 'HH:mm') : ''}" 
+                               required />
                     </div>
 
                     <div class="form-group full-width">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="availableCheck" th:field="*{available}" />
+                            <input type="checkbox" id="availableCheck" name="available" th:checked="*{available}" />
                             <label for="availableCheck">Available for Booking</label>
                         </div>
                     </div>
@@ -80,7 +96,7 @@
             </form>
         </div>
 
-        <!-- Schedule List -->
+        <!-- Хуваарийн жагсаалт -->
         <h3>Schedule List</h3>
         <div class="table-responsive">
             <table class="schedule-table">
@@ -102,10 +118,14 @@
                         <td th:text="${sch.id}">1</td>
                         <td th:text="${sch.doctor != null ? 'Dr. ' + sch.doctor.firstName + ' ' + sch.doctor.lastName : 'N/A'}" style="font-weight: 500;">Dr. John Doe</td>
                         <td th:text="${sch.availableDate}">2026-09-20</td>
-                        <td th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</td>
+                        <!-- 24 цагийн форматаар (HH:mm) харуулах хэсэг -->
+                        <td th:text="${#temporals.format(sch.startTime, 'HH:mm') + ' - ' + #temporals.format(sch.endTime, 'HH:mm')}">
+                            13:00 - 13:30
+                        </td>
                         <td>
+                            <!-- Засагдсан хэсэг: 'Booked / Unavailable'-ийн оронд зөвхөн 'Unavailable' болсон -->
                             <span th:class="${sch.available ? 'badge-status status-available' : 'badge-status status-unavailable'}"
-                                  th:text="${sch.available ? 'Available' : 'Booked / Unavailable'}">Available</span>
+                                  th:text="${sch.available ? 'Available' : 'Unavailable'}">Available</span>
                         </td>
                         <td>
                             <a th:href="@{/admin/schedules/edit/{id}(id=${sch.id})}" class="btn-edit">Edit</a>

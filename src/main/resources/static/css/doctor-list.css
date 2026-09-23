@@ -1,37 +1,61 @@
 /* Хайлт ба шүүлтүүрийн талбар */
+/* Формын ерөнхий бүтэц - элементүүдийг нэг шугаманд зэрэгцүүлнэ */
 .filter-form {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    background-color: #f1f5f9;
-    padding: 18px 20px;
-    border-radius: 8px;
-    margin-bottom: 25px;
+    gap: 16px;
+}
+
+.filter-form .form-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
 }
 
 .filter-form label {
+    font-size: 0.9rem;
     font-weight: 600;
-    font-size: 0.88rem;
     color: #475569;
+    white-space: nowrap;
 }
 
-.filter-form input[type="text"],
+.filter-form input,
 .filter-form select {
     padding: 8px 12px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     font-size: 0.9rem;
-    background-color: #ffffff;
-    color: #1e293b;
     outline: none;
-    transition: border-color 0.2s;
 }
 
-.filter-form input[type="text"]:focus,
-.filter-form select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+/* Search болон Reset товчны зай */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Саарал дэвсгэртэй цэвэрхэн Reset товч */
+.btn-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #475569;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
 }
 
 /* Эмч нарын хүснэгт */

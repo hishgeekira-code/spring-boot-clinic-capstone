@@ -3,23 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin - Appointment Management</title>
-<!-- Эхлээд common, дараа нь тухайн хуудасныхаа css-ийг дуудна -->
+
+<!-- JS-ni request mate Spring Security CSRF meta tags -->
+<meta name="_csrf" th:content="${_csrf?.token}"/>
+<meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" th:href="@{/css/appointment-index.css}">
-<script th:src="@{/js/appointments.js}" defer></script>
 </head>
 <body>
 	<div class="container">
 		<h2>Admin - Appointment Dashboard</h2>
 
-		<!-- Загварлаг Навигацийн мөр -->
+		<!-- Navigation bar -->
 		<nav class="main-navbar">
 			<div class="nav-group">
-				<a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a> <a
-					th:href="@{/admin/departments}" class="nav-item">Departments</a> <a
-					th:href="@{/admin/doctors}" class="nav-item">Doctors</a> <a
-					th:href="@{/admin/schedules}" class="nav-item">Schedules</a> <a
-					th:href="@{/admin/appointments}" class="nav-item active">Appointments</a>
+				<a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a>
+				<a th:href="@{/admin/departments}" class="nav-item">Departments</a>
+				<a th:href="@{/admin/doctors}" class="nav-item">Doctors</a>
+				<a th:href="@{/admin/schedules}" class="nav-item">Schedules</a>
+				<a th:href="@{/admin/appointments}" class="nav-item active">Appointments</a>
 			</div>
 
 			<div class="nav-group">
@@ -30,26 +33,17 @@
 		</nav>
 		<hr />
 
-		<!-- Мэдэгдэл харуулах хэсэг -->
+		<!-- Alert box -->
 		<div id="alert-box"
 			style="display: none; padding: 12px 16px; margin-bottom: 20px; font-weight: 500; border-radius: 6px;"></div>
-
-		<div th:if="${successMessage}"
-			style="background-color: #dcfce7; color: #166534; padding: 12px 16px; border-radius: 6px; margin-bottom: 15px;">
-			<p th:text="${successMessage}"></p>
-		</div>
-		<div th:if="${errorMessage}"
-			style="background-color: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 6px; margin-bottom: 15px;">
-			<p th:text="${errorMessage}"></p>
-		</div>
 
 		<div th:if="${#lists.isEmpty(appointments)}"
 			style="padding: 20px; text-align: center; color: #64748b;">
 			<p>No appointments found in the system.</p>
 		</div>
 
-		<!-- Хүснэгтийн хэсэг -->
-		<div class="appointments-card">
+		<!-- Table section -->
+		<div class="appointments-card" th:if="${!#lists.isEmpty(appointments)}">
 			<table class="appointment-table">
 				<thead>
 					<tr>
@@ -63,53 +57,116 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:if="${#lists.isEmpty(appointments)}">
-						<td colspan="7"
-							style="text-align: center; color: #64748b; padding: 25px;">No
-							appointments found.</td>
-					</tr>
 					<tr th:each="app : ${appointments}">
 						<td th:text="${app.id}">1</td>
-						<td
-							th:text="${app.patient != null ? app.patient.firstName + ' ' + app.patient.lastName : 'N/A'}"
+						<td th:text="${app.patient != null ? app.patient.firstName + ' ' + app.patient.lastName : 'N/A'}"
 							style="font-weight: 500;">John Doe</td>
-						<td
-							th:text="${'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName}">Dr.
-							Sarah Jenkins</td>
-						<td class="time-slot"
-							th:text="${app.schedule.availableDate + ' (' + app.schedule.startTime + ' - ' + app.schedule.endTime + ')'}">9/23/26
-							(9:00 AM - 10:00 AM)</td>
-						<td
-							th:text="${app.reason != null and !#strings.isEmpty(app.reason) ? app.reason : '-'}"
-							style="color: #64748b;">testing</td>
-						<td>
-							<!-- Статус бүрийн тусгай өнгөтэй badge --> <span
-							th:if="${#strings.toString(app.status) == 'BOOKED'}"
-							class="badge-status status-booked">BOOKED</span> <span
-							th:if="${#strings.toString(app.status) == 'COMPLETED'}"
-							class="badge-status status-completed">COMPLETED</span> <span
-							th:if="${#strings.toString(app.status) == 'CANCELLED'}"
-							class="badge-status status-cancelled">CANCELLED</span>
+						<td th:text="${app.doctor != null ? 'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName : 'N/A'}">Dr. Sarah Jenkins</td>
+						
+						<!-- 24-hour format (HH:mm) -->
+						<td class="time-slot" th:if="${app.schedule != null}"
+							th:text="${app.schedule.availableDate + ' (' + #temporals.format(app.schedule.startTime, 'HH:mm') + ' - ' + #temporals.format(app.schedule.endTime, 'HH:mm') + ')'}">
+							2026-09-23 (09:00 - 10:00)
 						</td>
+						<td class="time-slot" th:unless="${app.schedule != null}">-</td>
+
+						<!-- Reason -->
+						<td th:text="${app.reason != null and !#strings.isEmpty(#strings.trim(app.reason)) ? app.reason : '-'}"
+							style="color: #64748b;">-</td>
+
+						<!-- Status Badge -->
 						<td>
-							<form th:action="@{/admin/appointments/update-status}"
-								method="post" style="margin: 0;">
-								<input type="hidden" name="appointmentId" th:value="${app.id}" />
-								<select name="status" class="status-select"
-									onchange="this.form.submit()">
-									<option value="BOOKED"
-										th:selected="${#strings.toString(app.status) == 'BOOKED'}">BOOKED</option>
-									<option value="COMPLETED"
-										th:selected="${#strings.toString(app.status) == 'COMPLETED'}">COMPLETED</option>
-									<option value="CANCELLED"
-										th:selected="${#strings.toString(app.status) == 'CANCELLED'}">CANCELLED</option>
-								</select>
-							</form>
+							<span th:id="'status-label-' + ${app.id}"
+								  th:text="${app.status}"
+								  style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em;"
+								  th:styleappend="${#strings.toString(app.status) == 'PENDING' ? 'background-color: #fef3c7; color: #b45309;' : 
+												  (#strings.toString(app.status) == 'CONFIRMED' ? 'background-color: #e0e7ff; color: #4338ca;' : 
+												  (#strings.toString(app.status) == 'COMPLETED' ? 'background-color: #dcfce7; color: #15803d;' : 
+												  'background-color: #fee2e2; color: #b91c1c;'))}">
+								PENDING
+							</span>
+						</td>
+
+						<!-- Change Status Dropdown -->
+						<td>
+							<select th:id="'status-select-' + ${app.id}" 
+									class="status-select"
+									th:onchange="'changeAppointmentStatus(' + ${app.id} + ', this.value)'"
+									style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; font-weight: 500; cursor: pointer; background: #ffffff;">
+								<option value="PENDING" th:selected="${#strings.toString(app.status) == 'PENDING'}">PENDING</option>
+								<option value="CONFIRMED" th:selected="${#strings.toString(app.status) == 'CONFIRMED'}">CONFIRMED</option>
+								<option value="COMPLETED" th:selected="${#strings.toString(app.status) == 'COMPLETED'}">COMPLETED</option>
+								<option value="CANCELLED" th:selected="${#strings.toString(app.status) == 'CANCELLED'}">CANCELLED</option>
+							</select>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 	</div>
+
+	<!-- Turant color badalva mate no Script -->
+	<script>
+	function changeAppointmentStatus(appointmentId, newStatus) {
+		const badge = document.getElementById('status-label-' + appointmentId);
+		const alertBox = document.getElementById('alert-box');
+
+		if (badge) {
+			badge.textContent = newStatus;
+			if (newStatus === 'CONFIRMED') {
+				badge.style.backgroundColor = '#e0e7ff';
+				badge.style.color = '#4338ca';
+			} else if (newStatus === 'COMPLETED') {
+				badge.style.backgroundColor = '#dcfce7';
+				badge.style.color = '#15803d';
+			} else if (newStatus === 'CANCELLED') {
+				badge.style.backgroundColor = '#fee2e2';
+				badge.style.color = '#b91c1c';
+			} else {
+				badge.style.backgroundColor = '#fef3c7';
+				badge.style.color = '#b45309';
+			}
+		}
+
+		const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+		const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+		const headers = {
+			'Content-Type': 'application/x-www-form-urlencoded'
+		};
+		if (token && header) {
+			headers[header] = token;
+		}
+
+		fetch('/admin/appointments/' + appointmentId + '/status', {
+			method: 'PUT',
+			headers: headers,
+			body: new URLSearchParams({ status: newStatus })
+		})
+		.then(response => {
+			if (!response.ok) {
+				return fetch('/admin/appointments/update-status', {
+					method: 'POST',
+					headers: headers,
+					body: new URLSearchParams({ appointmentId: appointmentId, status: newStatus })
+				});
+			}
+		})
+		.then(() => {
+			if (alertBox) {
+				alertBox.textContent = 'Status successfully updated to ' + newStatus;
+				alertBox.style.backgroundColor = '#dcfce7';
+				alertBox.style.color = '#15803d';
+				alertBox.style.display = 'block';
+				setTimeout(() => {
+					alertBox.style.display = 'none';
+				}, 2500);
+			}
+		})
+		.catch(err => {
+			console.error('Update failed:', err);
+		});
+	}
+	</script>
 </body>
 </html>

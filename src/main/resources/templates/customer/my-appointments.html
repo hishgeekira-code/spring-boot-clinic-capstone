@@ -50,7 +50,7 @@
                         <th>Department</th>
                         <th>Date & Time</th>
                         <th>Reason</th>
-                        <th style="width: 130px;">Status</th>
+                        <th style="width: 140px;">Status</th>
                         <th style="width: 100px;">Action</th>
                     </tr>
                 </thead>
@@ -62,21 +62,41 @@
                         <td th:text="${app.schedule.availableDate + ' (' + app.schedule.startTime + ' - ' + app.schedule.endTime + ')'}">2026-09-25 (09:00 - 10:00)</td>
                         <td th:text="${app.reason != null and !#strings.isEmpty(app.reason) ? app.reason : '-'}" style="color: #64748b;">Routine Checkup</td>
                         <td>
-                            <!-- Статусын өнгө ялгах -->
-                            <span th:if="${#strings.toString(app.status) == 'BOOKED'}" class="badge-status status-booked">BOOKED</span>
-                            <span th:if="${#strings.toString(app.status) == 'COMPLETED'}" class="badge-status status-completed">COMPLETED</span>
-                            <span th:if="${#strings.toString(app.status) == 'CANCELLED'}" class="badge-status status-cancelled">CANCELLED</span>
+                            <!-- Статусын өнгө болон утгуудыг зөв тааруулах хэсэг -->
+                            <span th:if="${#strings.toString(app.status) == 'PENDING'}" 
+                                  style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.82rem; font-weight: 600; background-color: #fef3c7; color: #b45309;">
+                                PENDING
+                            </span>
+                            <span th:if="${#strings.toString(app.status) == 'CONFIRMED' or #strings.toString(app.status) == 'BOOKED'}" 
+                                  style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.82rem; font-weight: 600; background-color: #e0e7ff; color: #4338ca;">
+                                CONFIRMED
+                            </span>
+                            <span th:if="${#strings.toString(app.status) == 'COMPLETED'}" 
+                                  style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.82rem; font-weight: 600; background-color: #dcfce7; color: #15803d;">
+                                COMPLETED
+                            </span>
+                            <span th:if="${#strings.toString(app.status) == 'CANCELLED'}" 
+                                  style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.82rem; font-weight: 600; background-color: #fee2e2; color: #b91c1c;">
+                                CANCELLED
+                            </span>
                         </td>
                         <td>
-                            <!-- Зөвхөн BOOKED статустай үед цуцлах боломжтой -->
-                            <form th:if="${#strings.toString(app.status) == 'BOOKED'}" 
+                            <!-- PENDING болон CONFIRMED (мөн хуучин BOOKED) үед Cancel хийх боломжтой -->
+                            <form th:if="${#strings.toString(app.status) == 'PENDING' or #strings.toString(app.status) == 'CONFIRMED' or #strings.toString(app.status) == 'BOOKED'}" 
                                   th:action="@{/appointments/cancel/{id}(id=${app.id})}" 
                                   method="post" 
                                   style="display: inline;"
                                   onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
-                                <button type="submit" class="btn-cancel">Cancel</button>
+                                <button type="submit" 
+                                        style="background: none; border: none; color: #ef4444; font-weight: 500; cursor: pointer; text-decoration: underline; padding: 0;">
+                                    Cancel
+                                </button>
                             </form>
-                            <span th:unless="${#strings.toString(app.status) == 'BOOKED'}" style="color: #94a3b8;">-</span>
+                            <!-- Дууссан эсвэл цуцлагдсан үед strikethrough/зураас гарна -->
+                            <span th:unless="${#strings.toString(app.status) == 'PENDING' or #strings.toString(app.status) == 'CONFIRMED' or #strings.toString(app.status) == 'BOOKED'}" 
+                                  style="color: #94a3b8;">
+                                -
+                            </span>
                         </td>
                     </tr>
                 </tbody>
