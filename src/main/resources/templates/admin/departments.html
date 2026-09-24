@@ -1,94 +1,110 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Manage Departments - Admin</title>
-    <!-- CSS файлууд холбох -->
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/department-management.css}">
+<meta charset="UTF-8">
+<title>Manage Departments - Admin</title>
+<!-- CSS файлууд холбох -->
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/department-management.css}">
 </head>
 <body>
-    <div class="container">
-        <h2>Department Management</h2>
-        
-        <!-- Загварлаг Навигацийн мөр -->
-        <nav class="main-navbar">
-            <div class="nav-group">
-                <a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a>
-                <a th:href="@{/admin/departments}" class="nav-item active">Departments</a>
-                <a th:href="@{/admin/doctors}" class="nav-item">Doctors</a>
-                <a th:href="@{/admin/schedules}" class="nav-item">Schedules</a>
-                <a th:href="@{/admin/appointments}" class="nav-item">Appointments</a>
-            </div>
+	<div class="container">
+		<h2>Department Management</h2>
 
-            <div class="nav-group">
-                <form th:action="@{/logout}" method="post" style="margin: 0;">
-                    <button type="submit" class="nav-btn-logout">Logout</button>
-                </form>
-            </div>
-        </nav>
-        <hr/>
+		<!-- Загварлаг Навигацийн мөр -->
+		<nav class="main-navbar">
+			<div class="nav-group">
+				<!-- Навигацийн хэсэгт: -->
+				<a th:href="@{/}" class="nav-item">Home</a> <a
+					th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a> <a
+					th:href="@{/admin/departments}" class="nav-item active">Departments</a> <a
+					th:href="@{/admin/doctors}" class="nav-item">Doctors</a> <a
+					th:href="@{/admin/schedules}" class="nav-item">Schedules</a> <a
+					th:href="@{/admin/appointments}" class="nav-item">Appointments</a>
+			</div>
 
-        <!-- Notifications -->
-        <div th:if="${successMessage}" class="alert-message alert-success">
-            <p th:text="${successMessage}"></p>
-        </div>
-        <div th:if="${errorMessage}" class="alert-message alert-error">
-            <p th:text="${errorMessage}"></p>
-        </div>
+			<div class="nav-group">
+				<form th:action="@{/logout}" method="post" style="margin: 0;">
+					<button type="submit" class="nav-btn-logout">Logout</button>
+				</form>
+			</div>
+		</nav>
+		<hr />
 
-        <!-- Add / Edit Department Form -->
-        <div class="department-form-card">
-            <h3 th:text="${department.id != null ? 'Edit Department (ID: ' + department.id + ')' : 'Add New Department'}">Add / Edit Department</h3>
-            <form th:action="@{/admin/departments/save}" th:object="${department}" method="post">
-                <input type="hidden" th:field="*{id}" />
-                
-                <div class="form-group">
-                    <label>Department Name:</label>
-                    <input type="text" th:field="*{name}" required placeholder="e.g. Cardiology" />
-                </div>
-                
-                <div class="form-group">
-                    <label>Description:</label>
-                    <textarea th:field="*{description}" rows="3" placeholder="Department description..."></textarea>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" th:text="${department.id != null ? 'Update Department' : 'Save Department'}">Save Department</button>
-                    <a th:if="${department.id != null}" th:href="@{/admin/departments}" class="btn btn-secondary">Cancel Edit</a>
-                </div>
-            </form>
-        </div>
+		<!-- Notifications -->
+		<div th:if="${successMessage}" class="alert-message alert-success">
+			<p th:text="${successMessage}"></p>
+		</div>
+		<div th:if="${errorMessage}" class="alert-message alert-error">
+			<p th:text="${errorMessage}"></p>
+		</div>
 
-        <!-- Department List -->
-        <h3>Department List</h3>
-        <div class="table-responsive">
-            <table class="department-table">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th style="width: 200px;">Name</th>
-                        <th>Description</th>
-                        <th style="width: 140px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:if="${#lists.isEmpty(departments)}">
-                        <td colspan="4" style="text-align: center; color: #64748b; padding: 25px;">No departments found.</td>
-                    </tr>
-                    <tr th:each="dept : ${departments}">
-                        <td th:text="${dept.id}">1</td>
-                        <td th:text="${dept.name}" style="font-weight: 500;">Cardiology</td>
-                        <td th:text="${dept.description != null and !#strings.isEmpty(dept.description) ? dept.description : '-'}" style="color: #64748b;">Heart care</td>
-                        <td>
-                            <a th:href="@{/admin/departments/edit/{id}(id=${dept.id})}" class="btn-edit">Edit</a>
-                            <span class="divider" style="margin: 0 4px;">|</span>
-                            <a th:href="@{/admin/departments/delete/{id}(id=${dept.id})}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this department?')">Delete</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+		<!-- Add / Edit Department Form -->
+		<div class="department-form-card">
+			<h3
+				th:text="${department.id != null ? 'Edit Department (ID: ' + department.id + ')' : 'Add New Department'}">Add
+				/ Edit Department</h3>
+			<form th:action="@{/admin/departments/save}"
+				th:object="${department}" method="post">
+				<input type="hidden" th:field="*{id}" />
+
+				<div class="form-group">
+					<label>Department Name:</label> <input type="text"
+						th:field="*{name}" required placeholder="e.g. Cardiology" />
+				</div>
+
+				<div class="form-group">
+					<label>Description:</label>
+					<textarea th:field="*{description}" rows="3"
+						placeholder="Department description..."></textarea>
+				</div>
+
+				<div class="form-actions">
+					<button type="submit" class="btn btn-primary"
+						th:text="${department.id != null ? 'Update Department' : 'Save Department'}">Save
+						Department</button>
+					<a th:if="${department.id != null}" th:href="@{/admin/departments}"
+						class="btn btn-secondary">Cancel Edit</a>
+				</div>
+			</form>
+		</div>
+
+		<!-- Department List -->
+		<h3>Department List</h3>
+		<div class="table-responsive">
+			<table class="department-table">
+				<thead>
+					<tr>
+						<th style="width: 80px;">ID</th>
+						<th style="width: 200px;">Name</th>
+						<th>Description</th>
+						<th style="width: 140px;">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${#lists.isEmpty(departments)}">
+						<td colspan="4"
+							style="text-align: center; color: #64748b; padding: 25px;">No
+							departments found.</td>
+					</tr>
+					<tr th:each="dept : ${departments}">
+						<td th:text="${dept.id}">1</td>
+						<td th:text="${dept.name}" style="font-weight: 500;">Cardiology</td>
+						<td
+							th:text="${dept.description != null and !#strings.isEmpty(dept.description) ? dept.description : '-'}"
+							style="color: #64748b;">Heart care</td>
+						<td><a
+							th:href="@{/admin/departments/edit/{id}(id=${dept.id})}"
+							class="btn-edit">Edit</a> <span class="divider"
+							style="margin: 0 4px;">|</span> <a
+							th:href="@{/admin/departments/delete/{id}(id=${dept.id})}"
+							class="btn-delete"
+							onclick="return confirm('Are you sure you want to delete this department?')">Delete</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </body>
 </html>

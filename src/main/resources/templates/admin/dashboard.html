@@ -1,61 +1,69 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard - Clinic Appointment System</title>
-    <!-- Нийтлэг загвар болон Dashboard-ийн CSS -->
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+<meta charset="UTF-8">
+<title>Admin Dashboard - Clinic Appointment System</title>
+<!-- Нийтлэг загвар болон Dashboard-ийн CSS -->
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/dashboard.css}">
 </head>
 <body>
-    <div class="container">
-        <h2>Admin Dashboard</h2>
-        
-        <!-- Sarara Naannoo Qajeelchaa Isa Ammayyaa -->
-        <nav class="main-navbar">
-            <div class="nav-group">
-                <a th:href="@{/admin/dashboard}" class="nav-item active">Dashboard</a>
-                <a th:href="@{/admin/departments}" class="nav-item">Departments</a>
-                <a th:href="@{/admin/doctors}" class="nav-item">Doctors</a>
-                <a th:href="@{/admin/schedules}" class="nav-item">Schedules</a>
-                <a th:href="@{/admin/appointments}" class="nav-item">Appointments</a>
-            </div>
+	<div class="container">
+		<h2>Admin Dashboard</h2>
 
-            <div class="nav-group">
-                <form th:action="@{/logout}" method="post" style="margin: 0;">
-                    <button type="submit" class="nav-btn-logout">Logout</button>
-                </form>
-            </div>
-        </nav>
-        <hr/>
+		<!-- Sarara Naannoo Qajeelchaa Isa Ammayyaa -->
+		<nav class="main-navbar">
+			<div class="nav-group">
+				<!-- Навигацийн хэсэгт: -->
+				<a th:href="@{/}" class="nav-item">Home</a> <a
+					th:href="@{/admin/dashboard}" class="nav-item active">Dashboard</a> <a
+					th:href="@{/admin/departments}" class="nav-item">Departments</a> <a
+					th:href="@{/admin/doctors}" class="nav-item">Doctors</a> <a
+					th:href="@{/admin/schedules}" class="nav-item">Schedules</a> <a
+					th:href="@{/admin/appointments}" class="nav-item">Appointments</a>
+			</div>
 
-        <!-- Statistics хэсэг -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Doctors</h3>
-                <div class="stat-number" th:text="${stats != null ? stats.totalDoctors : 0}">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Total Patients</h3>
-                <div class="stat-number" th:text="${stats != null ? stats.totalPatients : 0}">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Today's Appointments</h3>
-                <div class="stat-number" th:text="${stats != null ? stats.todayAppointments : 0}">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Booked Appointments</h3>
-                <div class="stat-number" th:text="${stats != null ? stats.bookedAppointments : 0}">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Completed Appointments</h3>
-                <div class="stat-number" th:text="${stats != null ? stats.completedAppointments : 0}">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Cancelled Appointments</h3>
-                <div class="stat-number" th:text="${stats != null ? stats.cancelledAppointments : 0}">0</div>
-            </div>
-        </div>
-    </div>
+			<div class="nav-group">
+				<form th:action="@{/logout}" method="post" style="margin: 0;">
+					<button type="submit" class="nav-btn-logout">Logout</button>
+				</form>
+			</div>
+		</nav>
+		<hr />
+
+		<!-- Statistics хэсэг -->
+		<div class="stats-grid">
+			<div class="stat-card">
+				<h3>Total Doctors</h3>
+				<div class="stat-number"
+					th:text="${stats != null ? stats.totalDoctors : 0}">0</div>
+			</div>
+			<div class="stat-card">
+				<h3>Total Patients</h3>
+				<div class="stat-number"
+					th:text="${stats != null ? stats.totalPatients : 0}">0</div>
+			</div>
+			<div class="stat-card">
+				<h3>Today's Appointments</h3>
+				<div class="stat-number"
+					th:text="${stats != null ? stats.todayAppointments : 0}">0</div>
+			</div>
+			<div class="stat-card">
+				<h3>Booked Appointments</h3>
+				<div class="stat-number"
+					th:text="${stats != null ? stats.bookedAppointments : 0}">0</div>
+			</div>
+			<div class="stat-card">
+				<h3>Completed Appointments</h3>
+				<div class="stat-number"
+					th:text="${stats != null ? stats.completedAppointments : 0}">0</div>
+			</div>
+			<div class="stat-card">
+				<h3>Cancelled Appointments</h3>
+				<div class="stat-number"
+					th:text="${stats != null ? stats.cancelledAppointments : 0}">0</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

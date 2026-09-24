@@ -5,8 +5,8 @@
 <title>Admin - Appointment Management</title>
 
 <!-- Spring Security CSRF мета тагууд (JS-д зайлшгүй шаардлагатай) -->
-<meta name="_csrf" th:content="${_csrf?.token}"/>
-<meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+<meta name="_csrf" th:content="${_csrf?.token}" />
+<meta name="_csrf_header" th:content="${_csrf?.headerName}" />
 
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" th:href="@{/css/appointment-index.css}">
@@ -19,11 +19,13 @@
 		<!-- Навигацийн мөр -->
 		<nav class="main-navbar">
 			<div class="nav-group">
-				<a th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a>
-				<a th:href="@{/admin/departments}" class="nav-item">Departments</a>
-				<a th:href="@{/admin/doctors}" class="nav-item">Doctors</a>
-				<a th:href="@{/admin/schedules}" class="nav-item">Schedules</a>
-				<a th:href="@{/admin/appointments}" class="nav-item active">Appointments</a>
+				<!-- Навигацийн хэсэгт: -->
+				<a th:href="@{/}" class="nav-item">Home</a> <a
+					th:href="@{/admin/dashboard}" class="nav-item">Dashboard</a> <a
+					th:href="@{/admin/departments}" class="nav-item">Departments</a> <a
+					th:href="@{/admin/doctors}" class="nav-item">Doctors</a> <a
+					th:href="@{/admin/schedules}" class="nav-item">Schedules</a> <a
+					th:href="@{/admin/appointments}" class="nav-item active">Appointments</a>
 			</div>
 
 			<div class="nav-group">
@@ -44,7 +46,8 @@
 		</div>
 
 		<!-- Хүснэгтийн хэсэг -->
-		<div class="appointments-card" th:if="${!#lists.isEmpty(appointments)}">
+		<div class="appointments-card"
+			th:if="${!#lists.isEmpty(appointments)}">
 			<table class="appointment-table">
 				<thead>
 					<tr>
@@ -60,46 +63,48 @@
 				<tbody>
 					<tr th:each="app : ${appointments}">
 						<td th:text="${app.id}">1</td>
-						<td th:text="${app.patient != null ? app.patient.firstName + ' ' + app.patient.lastName : 'N/A'}"
+						<td
+							th:text="${app.patient != null ? app.patient.firstName + ' ' + app.patient.lastName : 'N/A'}"
 							style="font-weight: 500;">John Doe</td>
-						<td th:text="${app.doctor != null ? 'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName : 'N/A'}">Dr. Sarah Jenkins</td>
-						
+						<td
+							th:text="${app.doctor != null ? 'Dr. ' + app.doctor.firstName + ' ' + app.doctor.lastName : 'N/A'}">Dr.
+							Sarah Jenkins</td>
+
 						<!-- 24 цагийн форматаар (HH:mm) -->
 						<td class="time-slot" th:if="${app.schedule != null}"
 							th:text="${app.schedule.availableDate + ' (' + #temporals.format(app.schedule.startTime, 'HH:mm') + ' - ' + #temporals.format(app.schedule.endTime, 'HH:mm') + ')'}">
-							2026-09-23 (09:00 - 10:00)
-						</td>
+							2026-09-23 (09:00 - 10:00)</td>
 						<td class="time-slot" th:unless="${app.schedule != null}">-</td>
 
 						<!-- Reason -->
-						<td th:text="${app.reason != null and !#strings.isEmpty(#strings.trim(app.reason)) ? app.reason : '-'}"
+						<td
+							th:text="${app.reason != null and !#strings.isEmpty(#strings.trim(app.reason)) ? app.reason : '-'}"
 							style="color: #64748b;">-</td>
 
 						<!-- Status Badge -->
-						<td>
-							<span th:id="'status-label-' + ${app.id}"
-								  th:text="${app.status}"
-								  style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em;"
-								  th:styleappend="${#strings.toString(app.status) == 'PENDING' ? 'background-color: #fef3c7; color: #b45309;' : 
+						<td><span th:id="'status-label-' + ${app.id}"
+							th:text="${app.status}"
+							style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.02em;"
+							th:styleappend="${#strings.toString(app.status) == 'PENDING' ? 'background-color: #fef3c7; color: #b45309;' : 
 												  (#strings.toString(app.status) == 'CONFIRMED' ? 'background-color: #e0e7ff; color: #4338ca;' : 
 												  (#strings.toString(app.status) == 'COMPLETED' ? 'background-color: #dcfce7; color: #15803d;' : 
 												  'background-color: #fee2e2; color: #b91c1c;'))}">
-								PENDING
-							</span>
-						</td>
+								PENDING </span></td>
 
 						<!-- Change Status Dropdown -->
-						<td>
-							<select th:id="'status-select-' + ${app.id}" 
-									class="status-select"
-									th:onchange="'changeAppointmentStatus(' + ${app.id} + ', this.value)'"
-									style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; font-weight: 500; cursor: pointer; background: #ffffff;">
-								<option value="PENDING" th:selected="${#strings.toString(app.status) == 'PENDING'}">PENDING</option>
-								<option value="CONFIRMED" th:selected="${#strings.toString(app.status) == 'CONFIRMED'}">CONFIRMED</option>
-								<option value="COMPLETED" th:selected="${#strings.toString(app.status) == 'COMPLETED'}">COMPLETED</option>
-								<option value="CANCELLED" th:selected="${#strings.toString(app.status) == 'CANCELLED'}">CANCELLED</option>
-							</select>
-						</td>
+						<td><select th:id="'status-select-' + ${app.id}"
+							class="status-select"
+							th:onchange="'changeAppointmentStatus(' + ${app.id} + ', this.value)'"
+							style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; font-weight: 500; cursor: pointer; background: #ffffff;">
+								<option value="PENDING"
+									th:selected="${#strings.toString(app.status) == 'PENDING'}">PENDING</option>
+								<option value="CONFIRMED"
+									th:selected="${#strings.toString(app.status) == 'CONFIRMED'}">CONFIRMED</option>
+								<option value="COMPLETED"
+									th:selected="${#strings.toString(app.status) == 'COMPLETED'}">COMPLETED</option>
+								<option value="CANCELLED"
+									th:selected="${#strings.toString(app.status) == 'CANCELLED'}">CANCELLED</option>
+						</select></td>
 					</tr>
 				</tbody>
 			</table>
