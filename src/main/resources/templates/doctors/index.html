@@ -14,34 +14,35 @@
 		<h2>Doctors List</h2>
 
 		<!-- Загварлаг Навигацийн мөр -->
-		<nav class="main-navbar">
-			<div class="nav-group">
+		<nav class="main-navbar" style="display: flex; justify-content: space-between; align-items: center;">
+			<div class="nav-group" style="display: flex; align-items: center; gap: 12px;">
+				<a th:href="@{/}" class="nav-item">Home</a>
 				<a th:href="@{/doctors}" class="nav-item active">Doctors</a>
 
-				<!-- Зөвхөн нэвтэрсэн хэрэглэгчид харагдах цэсүүд -->
-				<span id="auth-logged-in-links"
-					style="display: none; align-items: center; gap: 8px;"> <a
-					th:href="@{/my-appointments}" class="nav-item">My Appointments</a>
-					<a th:href="@{/admin/dashboard}" id="admin-link" class="nav-item"
-					style="display: none;">Admin Dashboard</a>
-				</span>
+				<!-- 1. Нэвтэрсэн үед гарах цэсүүд -->
+				<th:block th:if="${isLoggedIn}">
+					<!-- ЗӨВХӨН ЭНГИЙН ХЭРЭГЛЭГЧИД: My Appointments гарна -->
+					<a th:unless="${isAdmin}" th:href="@{/my-appointments}" class="nav-item">My Appointments</a>
+
+					<!-- ЗӨВХӨН АДМИНД: Admin Dashboard гарна -->
+					<a th:if="${isAdmin}" th:href="@{/admin/appointments}" class="nav-item">Admin Dashboard</a>
+				</th:block>
 			</div>
 
-			<div class="nav-group">
+			<div class="nav-group" style="display: flex; align-items: center; gap: 12px;">
 				<!-- Нэвтэрсэн үед гарах Logout товч -->
-				<span id="auth-logged-in-btn" style="display: none;">
-					<form th:action="@{/logout}" method="post" style="margin: 0;">
+				<th:block th:if="${isLoggedIn}">
+					<form th:action="@{/logout}" method="post" style="margin: 0; display: inline;">
 						<button type="submit" class="nav-btn-logout">Logout</button>
 					</form>
-				</span>
+				</th:block>
 
 				<!-- Нэвтрээгүй үед гарах Login / Register товчлуурууд -->
-				<span id="auth-guest"
-					style="display: flex; align-items: center; gap: 8px;"> <a
-					th:href="@{/login}" class="nav-item">Login</a> <a
-					th:href="@{/register}" class="btn btn-primary"
-					style="padding: 7px 14px; font-size: 0.88rem;">Register</a>
-				</span>
+				<th:block th:unless="${isLoggedIn}">
+					<a th:href="@{/login}" class="nav-item">Login</a>
+					<a th:href="@{/register}" class="btn btn-primary"
+						style="padding: 7px 14px; font-size: 0.88rem; text-decoration: none;">Register</a>
+				</th:block>
 			</div>
 		</nav>
 
@@ -142,26 +143,5 @@
 		</div>
 	</div>
 
-	<!-- Навигацийн төлөв шалгах скрипт -->
-	<script th:inline="javascript">
-		/*<![CDATA[*/
-		var loggedIn = /*[[${isLoggedIn}]]*/false;
-		var admin = /*[[${isAdmin}]]*/false;
-
-		if (loggedIn === true) {
-			document.getElementById('auth-logged-in-links').style.display = 'inline-flex';
-			document.getElementById('auth-logged-in-btn').style.display = 'inline-block';
-			document.getElementById('auth-guest').style.display = 'none';
-
-			if (admin === true) {
-				document.getElementById('admin-link').style.display = 'inline-block';
-			}
-		} else {
-			document.getElementById('auth-logged-in-links').style.display = 'none';
-			document.getElementById('auth-logged-in-btn').style.display = 'none';
-			document.getElementById('auth-guest').style.display = 'flex';
-		}
-		/*]]>*/
-	</script>
 </body>
 </html>

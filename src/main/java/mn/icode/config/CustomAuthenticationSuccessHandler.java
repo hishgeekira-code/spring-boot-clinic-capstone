@@ -22,10 +22,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         for (GrantedAuthority authority : authorities) {
             if (authority.getAuthority().equals("ROLE_ADMIN")) {
-                response.sendRedirect("/admin");
+                response.sendRedirect("/");
                 return;
             } else if (authority.getAuthority().equals("ROLE_CUSTOMER")) {
-                response.sendRedirect("/customer/dashboard");
+                response.sendRedirect("/");
                 return;
             }
         }

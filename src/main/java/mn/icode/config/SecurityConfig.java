@@ -10,12 +10,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomAuthenticationSuccessHandler successHandler;
-
-    public SecurityConfig(CustomAuthenticationSuccessHandler successHandler) {
-        this.successHandler = successHandler;
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -26,7 +20,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // 1. Олон нийт нэвтрэхгүйгээр чөлөөтэй үзэх замууд (/doctors/** нэмэгдсэн)
+                // 1. Олон нийт нэвтрэхгүйгээр чөлөөтэй үзэх замууд
                 .requestMatchers("/", "/doctors/**", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
 
                 // 2. Зөвхөн Админ хандах замууд
@@ -40,7 +34,8 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .successHandler(successHandler)
+                // true параметр нь өмнө нь хандаж байсан бүх хуудсыг алгасаад заавал Home page (/) рүү шилжүүлнэ:
+                .defaultSuccessUrl("/", true)
                 .permitAll()
             )
             .logout(logout -> logout

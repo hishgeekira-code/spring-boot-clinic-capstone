@@ -31,8 +31,17 @@ public class PublicDoctorController {
     }
 
     @GetMapping("/")
-    public String home() {
-        return "redirect:/doctors";
+    public String home(Authentication authentication, Model model) {
+        boolean isLoggedIn = authentication != null && authentication.isAuthenticated()
+                             && !authentication.getName().equals("anonymousUser");
+
+        boolean isAdmin = isLoggedIn && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isAdmin", isAdmin);
+
+        return "home"; // redirect биш, templates/home.html-ийг дуудна
     }
 
     @GetMapping("/doctors")
