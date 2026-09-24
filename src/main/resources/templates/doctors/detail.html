@@ -6,54 +6,74 @@
 <title>Doctor Profile - Clinic Appointment System</title>
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" th:href="@{/css/doctor-detail.css}">
+<style>
+/* Бусад хуудастай ижил загвартай Logout товч */
+.nav-btn-logout {
+	border: 1px solid #fecaca;
+	background-color: #ffffff;
+	color: #ef4444;
+	padding: 7px 16px;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+.nav-btn-logout:hover {
+	background-color: #fef2f2;
+	border-color: #fca5a5;
+	color: #dc2626;
+}
+</style>
 </head>
 <body>
 	<div class="container">
-		<!-- Навигацийн мөр -->
-		<nav class="main-navbar">
-			<div class="nav-group">
-				<div style="margin-bottom: 20px; display: flex; gap: 15px;">
-					<a th:href="@{/}"
-						style="text-decoration: none; color: #64748b; font-size: 0.9rem; font-weight: 500;">
-						&larr; Home </a> <span style="color: #cbd5e1;">/</span> <a
-						th:href="@{/doctors}"
-						style="text-decoration: none; color: #2563eb; font-size: 0.9rem; font-weight: 500;">
-						Doctors </a>
-				</div>
+		<h2>Doctor Detail</h2>
+		<!-- Стандарт Навигацийн мөр -->
+		<nav class="main-navbar"
+			style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+			<div class="nav-group"
+				style="display: flex; align-items: center; gap: 10px;">
+				<a th:href="@{/}" class="nav-item">Home</a>
+				<a th:href="@{/doctors}" class="nav-item">Doctors</a>
 
-				<!-- Нэвтэрсэн хэрэглэгчид харагдах холбоосууд -->
+				<!-- Хэрэглэгч нэвтэрсэн үед гарах цэсүүд -->
 				<span sec:authorize="isAuthenticated()"
-					style="display: inline-flex; align-items: center; gap: 8px;">
-					<a th:href="@{/my-appointments}" class="nav-item">My
-						Appointments</a> <a sec:authorize="hasRole('ADMIN')"
-					th:href="@{/admin/dashboard}" class="nav-item">Admin Dashboard</a>
+					style="display: inline-flex; align-items: center; gap: 10px;">
+					<!-- Энгийн хэрэглэгчид: My Appointments -->
+					<a sec:authorize="!hasRole('ADMIN')" th:href="@{/my-appointments}"
+						class="nav-item">My Appointments</a>
+					<!-- Админд: Admin Dashboard -->
+					<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/appointments}"
+						class="nav-item">Admin Dashboard</a>
 				</span>
 			</div>
 
 			<div class="nav-group">
-				<!-- Нэвтэрсэн үед харагдах Logout товч -->
+				<!-- Нэвтэрсэн үед гарах Logout товч -->
 				<div sec:authorize="isAuthenticated()">
-					<form th:action="@{/logout}" method="post" style="margin: 0;">
+					<form th:action="@{/logout}" method="post" style="margin: 0; display: inline;">
 						<button type="submit" class="nav-btn-logout">Logout</button>
 					</form>
 				</div>
 
-				<!-- Зочин үед харагдах Login / Register товчнууд -->
+				<!-- Нэвтрээгүй үед гарах Login / Register товчнууд -->
 				<div sec:authorize="isAnonymous()"
 					style="display: flex; align-items: center; gap: 8px;">
-					<a th:href="@{/login}" class="nav-item">Login</a> <a
-						th:href="@{/register}" class="btn btn-primary"
-						style="padding: 7px 14px; font-size: 0.88rem;">Register</a>
+					<a th:href="@{/login}" class="nav-item">Login</a>
+					<a th:href="@{/register}" class="btn btn-primary"
+						style="padding: 7px 14px; font-size: 0.88rem; text-decoration: none;">Register</a>
 				</div>
 			</div>
 		</nav>
-		<hr
-			style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0 25px 0;" />
 
-		<!-- Эмчийн дэлгэрэнгүй мэдээллийн карт -->
+		<hr
+			style="border: 0; border-top: 1px solid #e2e8f0; margin: 10px 0 25px 0;" />
+
+		<!-- Эмчийн мэдээллийн карт (Active төлөвийг харуулдаггүй) -->
 		<div class="doctor-profile-card">
-			<h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr.
-				Michael Brown</h2>
+			<h2 th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. Michael Brown</h2>
 			<div class="profile-info-grid">
 				<p>
 					<strong>Specialization:</strong> <span
@@ -65,8 +85,7 @@
 				</p>
 				<p th:if="${doctor.bio != null and !#strings.isEmpty(doctor.bio)}"
 					class="profile-bio">
-					<strong>Bio:</strong> <span th:text="${doctor.bio}">Specialist
-						in nervous system disorders...</span>
+					<strong>Bio:</strong> <span th:text="${doctor.bio}">Specialist in nervous system disorders...</span>
 				</p>
 			</div>
 		</div>
@@ -75,8 +94,7 @@
 		<h3>Doctor Schedules</h3>
 		<div th:if="${#lists.isEmpty(schedules)}"
 			style="padding: 24px; color: #64748b; background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; margin-top: 15px; text-align: center;">
-			<p style="margin: 0;">No schedules found for this doctor at the
-				moment.</p>
+			<p style="margin: 0;">No schedules found for this doctor at the moment.</p>
 		</div>
 
 		<div class="table-responsive" th:if="${!#lists.isEmpty(schedules)}"
@@ -95,12 +113,13 @@
 						<td th:text="${sch.startTime + ' - ' + sch.endTime}"
 							style="color: #475569;">09:00 - 10:00</td>
 						<td style="text-align: center;">
-							<!-- 1. Сул хуваарь бол /appointments/book/{id} хэлбэрээр шилжинэ -->
+							<!-- 1. Сул хуваарь бол захиалах товч -->
 							<a th:if="${sch.isAvailable}"
 							th:href="@{/appointments/book/{id}(id=${sch.id})}"
 							class="btn btn-primary"
 							style="display: inline-block; padding: 7px 14px; font-size: 0.85rem; text-decoration: none; border-radius: 6px;">
-								Book Appointment </a> <!-- 2. Захиалагдсан бол 'Already Booked' саарал badge харагдана -->
+								Book Appointment </a>
+							<!-- 2. Захиалагдсан бол 'Already Booked' саарал төлөв -->
 							<span th:unless="${sch.isAvailable}"
 							style="display: inline-block; padding: 6px 12px; font-size: 0.85rem; font-weight: 500; color: #64748b; background-color: #f1f5f9; border-radius: 6px; border: 1px solid #cbd5e1; user-select: none;">
 								Already Booked </span>
